@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="DropmixModdingTool:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DropmixModdingTool_jar</output-path>
+    <root id="archive" name="DropmixModdingTool.jar">
+      <element id="module-output" name="DropmixModdingTool" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../projects/dropmix-card-swap-utility/electron/external-tools/apksigner.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../projects/dropmix-card-swap-utility/electron/external-tools/apktool_2.9.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jadb-1.2.1/out/artifacts/jadb_jar/jadb.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

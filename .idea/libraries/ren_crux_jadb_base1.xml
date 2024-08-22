@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="ren.crux.jadb.base1" type="repository">
+    <properties include-transitive-deps="false" maven-id="ren.crux:jadb-base:2.0">
+      <exclude>
+        <dependency maven-id="ren.crux:jadb-base" />
+      </exclude>
+    </properties>
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ideaLibSources/jadb-base-2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
