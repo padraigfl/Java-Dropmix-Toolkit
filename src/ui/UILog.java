@@ -10,9 +10,11 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class UILog extends JPanel {
-  StringBuilder log = new StringBuilder();
+  String log = "";
   JTextPane tp;
   int w;
   int h;
@@ -46,28 +48,39 @@ public class UILog extends JPanel {
     btn.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        log = new StringBuilder();
-        tp.setText(log.toString());
+        log = "";
+        tp.setText(log);
       }
     });
     add(btn, c);
   }
 
+  private void refreshText() {
+    tp.setText(log);
+    tp.repaint();
+    CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
+      if (!tp.getText().equals(log)) {
+        refreshText();
+      }
+    });
+  }
   private void logSetup() {
     PrintStream cmd = System.out;
-    log.delete(0, log.length());
-    UILog that = this;
+    log = "";
     Counter i = new Counter(0);
     PrintStream out = new PrintStream(new OutputStream() {
       @Override
       public void write(int b) throws IOException {
-        i.iterate();
-        log.append((char) b);
-        tp.setText(log.toString());
-        cmd.print((char) b);
-        if (AppState.getInstance().isNestedLog && (char) b == '\n') {
-          log.append("--");
+        log = log + ((char) b);
+        boolean isNewLine = (char) b == '\n';
+
+        if (AppState.getInstance().isNestedLog && isNewLine) {
+          log = log + "- ";
         }
+        if (isNewLine) {
+          refreshText();
+        }
+        cmd.print((char) b);
         // that.renderLog();
       }
     });

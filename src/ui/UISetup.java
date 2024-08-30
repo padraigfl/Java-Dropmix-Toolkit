@@ -10,6 +10,7 @@ import se.vidstige.jadb.JadbDevice;
 import se.vidstige.jadb.JadbException;
 import ui.components.UIFilePicker;
 import model.DropmixSharedAssets;
+import util.UtilAdb;
 import util.UtilApk;
 
 import javax.swing.*;
@@ -30,7 +31,6 @@ public class UISetup extends JPanel {
   AppState as;
   UIFilePicker apkFind;
   UIFilePicker dataZipFind;
-  UIFilePicker obbZipFind;
   int updateCount = 0;
   UIMain parentFrame;
   public boolean apkVerified;
@@ -54,16 +54,11 @@ public class UISetup extends JPanel {
     removeAll();
     apkFind = new UIFilePicker("apk", "Android Package", "apk");
     dataZipFind = new UIFilePicker("zip", "data zip", "zip");
-    obbZipFind = new UIFilePicker("zip", "obb zip", "zip");
     int y = 0;
     GridBagConstraints c = getDefaultGridConstraints(y);
 
     renderApkInput(y++);
-    renderDataZipInput(y++);
-    renderObbZipInput(y++);
-//    if (AppState.getInstance().apkFile == null) {
-//      renderArchiveInput(y++);
-//    }
+//    renderDataZipInput(y++);
     renderAddAdb(y++);
     renderClearInput(y++);
 
@@ -112,6 +107,7 @@ public class UISetup extends JPanel {
           }
         }
       });
+      connectDeviceBtn.setEnabled(UtilAdb.hasAdbInstance);
       add(connectDeviceBtn, c);
   }
   public void renderClearInput(int row) {
@@ -128,7 +124,6 @@ public class UISetup extends JPanel {
           public void actionPerformed(ActionEvent ev) {
             apkFind.clearFileSelection();
             dataZipFind.clearFileSelection();
-            obbZipFind.clearFileSelection();
             that.apkVerified = false;
             as.reset();
             util.Helpers.logAction("Setup cleared");
@@ -139,21 +134,6 @@ public class UISetup extends JPanel {
       add(clearBtn, c);
     }
   }
-  // people might just want a single file install function??
-//  public void renderArchiveInput(int row) {
-//    GridBagConstraints c = getDefaultGridConstraints(row);
-//    c.gridwidth = 2;
-//    c.gridx = 0;
-//    add(SwingFactory.buildText("Use bundled Archive file"), c);
-//    c.gridwidth = 1;
-//    c.gridx = 2;
-//    add(SwingFactory.buildButton("use Archive", new ActionListener() {
-//      @Override
-//      public void actionPerformed(ActionEvent e) {
-//        System.out.println("not implemented yet");
-//      }
-//    }), c);
-//  }
   public void renderApkInput(int row) {
     GridBagConstraints c = getDefaultGridConstraints(row);
     if (as.apkFile == null) {
@@ -177,12 +157,11 @@ public class UISetup extends JPanel {
           @Override
           public void actionPerformed(ActionEvent ev) {
             System.out.println("Verifying APK: Setting up database...");
-            if (decompileApk(as.apkFile.getAbsolutePath(), DropmixSharedAssets.decompiledPath)) {
-              parentFrame.addCardsPanel();
-              parentFrame.addPlaylistsPanel();
-              that.apkVerified = true;
-              refresh();
-            }
+            decompileApk(as.apkFile.getAbsolutePath(), DropmixSharedAssets.decompiledPath);
+            parentFrame.addCardsPanel();
+            parentFrame.addPlaylistsPanel();
+            that.apkVerified = true;
+            refresh();
           }
         }
       );
@@ -190,6 +169,7 @@ public class UISetup extends JPanel {
       add(decompileBtn, c);
     }
   }
+  // for transferring data to app if desired
   public void renderDataZipInput(int row) {
     GridBagConstraints c = getDefaultGridConstraints(row);
     if (as.dataZip == null) {
@@ -206,22 +186,6 @@ public class UISetup extends JPanel {
     }
   }
 
-  public void renderObbZipInput(int row) {
-    GridBagConstraints c = getDefaultGridConstraints(row);
-    if (as.obbZip == null) {
-      // add(dataZipFind);
-      c.gridwidth = 2;
-      add(SwingFactory.buildText("No obb zip added yet"), c);
-      c.gridwidth = 1;
-      c.gridx = 2;
-      add(addFilePicker(obbZipFind, "Add Obb Zip"), c);
-    }
-    else {
-      c.gridwidth = 2;
-      add(SwingFactory.buildText("Obb zip: " + as.obbZip.getAbsolutePath()), c);
-    }
-  }
-
   public JButton addFilePicker(UIFilePicker picker, String buttonText) {
     return SwingFactory.buildButton(buttonText, new ActionListener() {
       @Override
@@ -230,6 +194,10 @@ public class UISetup extends JPanel {
         String text = "";
         AppState as = AppState.getInstance();
         if (picker == apkFind) {
+
+          try {
+            Files.deleteIfExists(Path.of(DropmixSharedAssets.decompiledPath));
+          } catch (IOException ex) { }
           text = "APK Selected: " + selectedFile.getAbsolutePath();
           as.apkFile = selectedFile;
         }
@@ -237,17 +205,7 @@ public class UISetup extends JPanel {
           text = "Data Zip Selected: " + selectedFile.getAbsolutePath();
           as.dataZip = selectedFile;
         }
-        if (picker == obbZipFind) {
-          as.obbZip = selectedFile;
-          try {
-            ZipFile zf = new ZipFile(selectedFile.getAbsolutePath());
-            zf.extractAll("test");
-            System.out.println();
-          } catch (IOException ex) {
-            ex.printStackTrace();
-          }
-          text = "Obb zip selected" + selectedFile.getAbsolutePath();
-        }
+
         System.out.println(text);
         refresh();
       }

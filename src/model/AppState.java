@@ -1,6 +1,7 @@
 package model;
 
 import se.vidstige.jadb.JadbDevice;
+import ui.UIMain;
 
 import javax.swing.*;
 import java.io.File;
@@ -13,7 +14,6 @@ public class AppState {
   public static AppState instance = new AppState();
   public File apkFile;
   public File dataZip;
-  public File obbZip;
   public byte[] rawData;
   public TreeMap<String, String> swapOptions = new TreeMap<String, String>();;
   public TreeMap<String, String> playlistSwap = new TreeMap<>();
@@ -21,7 +21,7 @@ public class AppState {
   public DropmixSharedAssets assetsHandler;
   public LogOptions logState = LogOptions.ERROR;
   public Process currentProcess = Process.NONE;
-  public JFrame appFrame; // for forcing refreshes
+  public UIMain appFrame; // for forcing refreshes
   public boolean isNestedLog;
   private AppState() {
   }
@@ -35,7 +35,7 @@ public class AppState {
     }
     return instance;
   }
-  public static AppState getInstance(boolean isTest, JFrame appFrame) {
+  public static AppState getInstance(boolean isTest, UIMain appFrame) {
     AppState instance = getInstance(isTest);
     instance.appFrame = appFrame;
     return instance;
@@ -131,10 +131,10 @@ public class AppState {
     this.playlistSwap.put(p2, p1);
   }
 
-  public static boolean setCurrentProcess(Process p) {
+  public static void setCurrentProcess(Process p) {
     AppState as = AppState.getInstance();
     if (p == as.currentProcess) {
-      return false;
+      return;
     }
     as.appFrame.repaint();
     System.out.println("New Process" + p);
@@ -155,41 +155,36 @@ public class AppState {
     System.out.println("Beginning process: " + p);
     System.out.println(as.isNestedLog);
     as.currentProcess = p;
-    return true;
   }
-  public static boolean endCurrentProcess(Process p) {
+  public static void endCurrentProcess(Process p) {
     AppState as = AppState.getInstance();
     if (as.currentProcess != p) {
       System.out.printf("Current process mismatch: %s, not %s", as.currentProcess, p);
-      return false;
+      return;
     }
     as.isNestedLog = false;
     setCurrentProcess(Process.NONE);
     System.out.println("Process complete: "+p);
-    return true;
   }
-  public static boolean switchCurrentProcess(Process prev, Process next) {
+  public static void switchCurrentProcess(Process prev, Process next) {
     AppState as = AppState.getInstance();
     if (as.currentProcess == prev) {
       endCurrentProcess(prev);
       setCurrentProcess(next);
-      return true;
     }
-    return false;
   }
 
   // basically just trying to wipe the slate
   public void reset() {
-    this.swapOptions = new TreeMap<String, String>();
     this.playlistSwap = new TreeMap<>();
     this.assetsHandler = null;
 
     this.dataZip = null;
     this.apkFile = null;
-    this.obbZip = null;
     this.adbDevice = null;
     this.appFrame.validate();
     this.appFrame.repaint();
+    this.appFrame.addPlaceholders();
   }
   // builds a card based swap from the playlist swap; may require more careful refinement as assumptions about order persistence exist
   public static TreeMap<String, String> getCardSwapFromPlaylist(TreeMap<String, String> plSwap) {

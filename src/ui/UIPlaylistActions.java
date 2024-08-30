@@ -113,6 +113,7 @@ public class UIPlaylistActions extends JPanel {
     } catch (IOException e) {
 
     }
+    this.verifiedModApk = null;
     renderActions();
   }
 //  public String installApk(String moddedApk) {

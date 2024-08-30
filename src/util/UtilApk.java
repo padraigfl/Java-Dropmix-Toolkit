@@ -5,16 +5,45 @@ import com.android.apksigner.ApkSignerTool;
 import model.AppState;
 import model.DropmixSharedAssets;
 import model.Process;
-import se.vidstige.jadb.JadbDevice;
+import org.junit.platform.commons.util.ClassLoaderUtils;
 
-import java.io.File;
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 
-public class UtilApk {
-  public static boolean decompileApk(String apkPath, String outputPath) {
+public class UtilApk extends Thread {
+  private String returnValue;
+  private Process currentProcess;
+
+  // experimental multithreaded solution
+  public void run(Process p, String input, String output) {
+    long id = Thread.currentThread().getId();
+    try {
+      currentProcess = p;
+      // Displaying the thread that is running
+      System.out.println(
+        p + ": " + id
+          + " is running");
+      if (p == Process.DECOMPILING) {
+        returnValue = decompileApk(input, output);
+      }
+      if (p == Process.RECOMPILING) {
+        returnValue = recompile(input, output);
+      }
+    }
+    catch (Exception e) {
+      // Throwing an exception
+      System.out.println("Exception is caught");
+    }
+  }
+  public String getReturnValue() {
+    return this.returnValue;
+  }
+  public Process getProcess() {
+    return this.currentProcess;
+  }
+  public static String decompileApk(String apkPath, String outputPath) {
     try {
       AppState.setCurrentProcess(Process.DECOMPILING);
       brut.apktool.Main.main(new String[]{"d", "-rf", apkPath, "-o", outputPath});
@@ -23,9 +52,9 @@ public class UtilApk {
       AppState.endCurrentProcess(Process.DECOMPILING);
       if (assetsFile.length > 100000) {
         AppState.getInstance().setData(assetsFile);
-        return true;
+        return outputPath;
       }
-      return false;
+      throw new RuntimeException("invalid-asset-size: < 100000");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

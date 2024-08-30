@@ -1,9 +1,15 @@
 import model.AppState;
 import ui.UIMain;
+import util.UtilAdb;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,14 +22,17 @@ public class Main {
     for (int i = 0; i < args.length; i++) {
       System.out.println(args[i]);
     }
+    UtilAdb.setAdbPath();
 
     new UIMain();
+
+    UtilAdb.startServer();
   }
 
   public static String adbDevice() {
     try {
       List<String> cmd = new LinkedList<>();
-      cmd.add("adb");
+      cmd.add("external_tools/adb");
       cmd.add("devices");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.redirectErrorStream(true);

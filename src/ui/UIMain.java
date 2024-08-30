@@ -1,6 +1,7 @@
 package ui;
 
 import model.AppState;
+import util.UtilAdb;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,18 +19,19 @@ public class UIMain extends JFrame {
   public static int width = 960;
   public static int height = 720;
   JPanel setupPanel;
-  JPanel cardsPanel;
-  JPanel playlistPanel;
+  public JPanel cardsPanel;
+  public JPanel playlistPanel;
   JTabbedPane menu;
   AppState as;
   UILog log;
+  String addApkTabMsg = "Please add and verify an APK on the setup screen to use this tab";
   public UIMain() {
     // Warning message
     JOptionPane.showMessageDialog(
       this,
       "This application is quite a rough implementation and should only be used if you are okay with the risks that involves." + "\n" +
         "These include harm to your android device and wasting space on your PC with poor file management\n" +
-        "To do the full install process you must enable an adb server"
+        "The ADB server initialisation process may have issues"
     );
     as = AppState.getInstance(false, this);
     setLayout(new GridBagLayout());
@@ -45,10 +47,9 @@ public class UIMain extends JFrame {
       tf.setText("test");
     test.add(tf);
     test.setVisible(true);
-    String addApkTabMsg = "Please add and verify an APK on the setup screen to use this tab";
     menu.add(screens[1], getEmptyPanel(addApkTabMsg));
     menu.add(screens[2], getEmptyPanel(addApkTabMsg));
-    menu.add(screens[3], getEmptyPanel("Tool for simple setup of Archive zip to go here"));
+    // menu.add(screens[3], getEmptyPanel("Tool for simple setup of Archive zip to go here"));
     GridBagConstraints c = new GridBagConstraints();
     c.insets = i;
     c.gridx = 0;
@@ -68,6 +69,12 @@ public class UIMain extends JFrame {
   public void addPanel(int idx, JPanel panel) {
     panel.setVisible(true);
     menu.setComponentAt(idx, panel);
+  }
+  public void addPlaceholders() {
+    try {
+      addPanel(1, getEmptyPanel(addApkTabMsg));
+      addPanel(2, getEmptyPanel(addApkTabMsg));
+    } catch (Exception e) {}
   }
   public void addCardsPanel() {
     cardsPanel = new UICards(this);
