@@ -1,3 +1,5 @@
+package ui.components;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
@@ -9,6 +11,7 @@ public class UIFilePicker extends JFileChooser {
     FileNameExtensionFilter filter = new FileNameExtensionFilter(description, extensions);
     setVisible(false);
     setFileFilter(filter);
+
   }
   public File openFileChooser() {
     setVisible(true);

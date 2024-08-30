@@ -1,4 +1,6 @@
-import org.antlr.runtime.tree.Tree;
+package model;
+
+import util.Helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +22,7 @@ public class CardDetail {
   public static final String SongRef = "SongRef";
   public static final String TypeRef = "TypeRef";
   public static final String GenreRef = "GenreRef";
+  public static final String PrintId = "Print ID";
   public static String[] heading = new String[]{
     CID,
     SourceCID,
@@ -35,24 +38,28 @@ public class CardDetail {
     ArtistRef,
     SongRef,
     TypeRef,
-    GenreRef
+    GenreRef,
+    PrintId,
   };
   public TreeMap<String, String> cardData;
   public boolean needsQuotes;
   public int dataLength;
 
-  public CardDetail(String[] data) {
-    cardData = new TreeMap<String, String>();
-    for (int i = 0; i < heading.length; i++) {
-      cardData.put(
-        heading[i],
-        data[i]
-      );
+  public CardDetail(String[] data, String[] columns) {
+    this.cardData = new TreeMap<String, String>();
+    for (int i = 0; i < columns.length; i++) {
+      this.setCardField(columns[i], data[i]);
     }
-    this.needsQuotes = this.cardData.get("Season").equals("2");
+//    if (this.cardData.get(CardDetail.SongRef).contains("Days Ahead")) {
+//      System.out.println(this.cardData);
+//    }
+    this.needsQuotes = this.cardData.get(CardDetail.Season).equals("2");
     this.dataLength = String.join(",", data).length();
   }
 
+  public void setCardField(String key, String data) {
+    this.cardData.put(key, data.replaceAll("\"", "").replaceAll("£", ","));
+  }
   // don't need length adjust if swapping between the same season
   public void dataSwap(CardDetail swapCard, boolean cardClone) {
     String oldValue = cardData.get("Source CID");
@@ -80,8 +87,41 @@ public class CardDetail {
     }
   }
 
+  public String getCardId() {
+    return this.cardData.get(CardDetail.SourceCID);
+  }
+  private void setCardId(String newId) {
+    this.cardData.put(CardDetail.SourceCID, newId);
+  }
+  public String getCardSeason() {
+    return this.cardData.get(CardDetail.Season);
+  }
+  public void setSourceCID(String newCardId, boolean preserveLength) {
+    String currentId = getCardId();
+    int songTitleLengthChangeRequired = currentId.length() - newCardId.length();
+    if (!preserveLength && songTitleLengthChangeRequired != 0) {
+      /*
+        SongRef would be preferable here as it will generally be longer but may cause issues with FX cards
+        With this in mind it makes sense to use the Artist name instead
+        TODO Investigate whether FX songRef values need to be swapped over when swap is applied
+       */
+      String fieldToChange =
+        songTitleLengthChangeRequired < 0
+          && this.cardData.get(CardDetail.SongRef).length() < Math.abs(songTitleLengthChangeRequired) + 1
+          ? CardDetail.SongRef
+          : CardDetail.ArtistRef;
+      String songTitle = this.cardData.get(fieldToChange);
+      if (songTitleLengthChangeRequired > 0) {
+        songTitle = Helpers.rPad(songTitle, songTitle.length() + Math.abs(songTitleLengthChangeRequired), ' ');
+      } else {
+        songTitle = songTitle.substring(0, songTitle.length() - Math.abs(songTitleLengthChangeRequired) );
+      }
+      this.cardData.put(fieldToChange, songTitle);
+    }
+    this.setCardId(newCardId);
+  }
   public String rowToDataString() {
-    ArrayList<String> sb = new ArrayList<String>();
+    ArrayList<String> sb = new ArrayList<>();
     for (String h: heading) {
       sb.add(cardData.get(h));
     }

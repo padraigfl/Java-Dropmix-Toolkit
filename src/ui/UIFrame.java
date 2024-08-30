@@ -1,9 +1,9 @@
+package ui;
+
+import model.AppState;
+import model.CardDetail;
+
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class UIFrame extends JFrame {
   JFrame f;
@@ -64,7 +64,7 @@ public class UIFrame extends JFrame {
 //    TableModel dataModel = new AbstractTableModel() {
 //      public int getColumnCount() { return 10; }
 //      public int getRowCount() { return cards.length;}
-//      public Object getValueAt(int row, int col) { return cards[row].cardData.get(CardDetail.heading[col]); }
+//      public Object getValueAt(int row, int col) { return cards[row].cardData.get(model.CardDetail.heading[col]); }
 //    };
     JTable table = new JTable(tableData, headings);
     return table;

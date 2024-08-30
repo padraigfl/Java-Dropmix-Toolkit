@@ -1,28 +1,32 @@
+package ui;
+
+import model.AppState;
+import model.PlaylistDetail;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-public class UIPlaylists extends JPanel {
-  UIMain parentFrame;
-  String[] swappablePlaylists;
-  JTable table;
-  int focusedRow;
-
-  public UIPlaylists(UIMain frame) {
-    parentFrame = frame;
+public class UIPlaylistsPanel extends JPanel {
+  JPanel parentFrame;
+  UIPlaylistActions actions;
+  public UIPlaylistsPanel(JPanel parent, UIPlaylistActions actions) {
+    parentFrame = parent;
+    this.actions = actions;
     setGrid();
   }
 
   public void setGrid() {
     removeAll();
     PlaylistDetail[] playlists = AppState.getInstance().getPlaylists();
-    String[] headings = new String[]{ "Name", "Count", "Type", "Season", "Action" };
+    String[] headings = new String[]{ "Name", "Count", "Type", "Playlist#", "Action" };
     setLayout(new GridLayout(playlists.length + 1, 5));
+    int width = (int) ( UIMain.width * 0.65);
+    setMinimumSize(new Dimension(width - 250, UIMain.height));
+    setPreferredSize(new Dimension(width - 100, UIMain.height));
+    setMaximumSize(new Dimension(width - 100, UIMain.height));
+
     for (String h: headings) {
       add(getText(h));
     }
@@ -31,8 +35,12 @@ public class UIPlaylists extends JPanel {
       add(getText(pl.name));
       add(getText("" + pl.playlistCount));
       add(getText(pl.playlistType));
-      add(getText(pl.season));
-      add(getPlaylistComboBox(pl.name));
+      add(getText(pl.season + "-" + pl.cardId));
+      if (pl.playlistCount == 15) {
+        add(getPlaylistComboBox(pl.name));
+      } else {
+        add(new JPanel());
+      }
     }
   }
 
@@ -57,21 +65,19 @@ public class UIPlaylists extends JPanel {
         validPlaylists.add(pl.name);
       }
     }
-    return validPlaylists.toArray(new String[validPlaylists.size()]);
+    return validPlaylists.toArray(new String[0]);
   }
   public JComboBox<String> getPlaylistComboBox(String playlist) {
     String[] options = getPlaylistOptions(playlist);
     JComboBox<String> box = new JComboBox<>(options);
     TreeMap<String, String> swaps = AppState.getInstance().playlistSwap;
     String selectedValue = swaps.get(playlist);
-    System.out.println("Selected value "+selectedValue);
     if (selectedValue != null) {
-      System.out.println(Arrays.stream(options).toList().indexOf(selectedValue));
       box.setSelectedIndex(Arrays.stream(options).toList().indexOf(selectedValue));
       box.validate();
       box.repaint();
     }
-    UIPlaylists that = this;
+    UIPlaylistsPanel that = this;
     box.addItemListener(new ItemListener() {
       Object oldSelectionItem = 0;
       @Override
@@ -81,14 +87,15 @@ public class UIPlaylists extends JPanel {
             AppState.getInstance().setPlaylistSwap(playlist, event.getItem().toString());
             // box.setSelectedItem(event.getItem());
             oldSelectionItem = event.getItem();
-            System.out.println(event.getStateChange() + " " + event.paramString());
             that.setGrid();
+            actions.validate();
+            actions.renderActions();
+            that.actions.clearState();
           } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(e.toString());
             box.setSelectedIndex(0);
           }
-          setVisible(false);
-          setVisible(true);
 //          if (!"Okay".equalsIgnoreCase(jTextField.getText())) {
 //            if (oldSelectionIndex < 0) {
 //              box.setSelectedIndex(0);

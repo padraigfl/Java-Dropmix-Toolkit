@@ -1,13 +1,26 @@
+package ui;
+
+import model.AppState;
+import model.CardDetail;
+
 import javax.swing.*;
+import java.awt.*;
 
 public class UICards extends JPanel {
   UIMain parentFrame;
   public UICards(UIMain frame) {
     parentFrame = frame;
     JTable table = getTable();
-    table.setBounds(0, 50, parentFrame.width, parentFrame.height-50);
+    Dimension td = new Dimension(parentFrame.width - 100, 300);
+    table.setMinimumSize(td);
+    // table.setBounds(0, 0, parentFrame.width, parentFrame.height-400);
+    Dimension d = new Dimension(parentFrame.width - 200, 300);
     JScrollPane scrollPane = new JScrollPane(table);
-    scrollPane.setBounds(0, 50, parentFrame.width, parentFrame.height-50);
+    scrollPane.setMaximumSize(d);
+    scrollPane.setPreferredSize(d);
+    scrollPane.setMinimumSize(d);
+
+    // scrollPane.setBounds(0, 0, parentFrame.width, parentFrame.height-50);
     add(scrollPane);
   }
 
@@ -24,7 +37,7 @@ public class UICards extends JPanel {
 //    TableModel dataModel = new AbstractTableModel() {
 //      public int getColumnCount() { return 10; }
 //      public int getRowCount() { return cards.length;}
-//      public Object getValueAt(int row, int col) { return cards[row].cardData.get(CardDetail.heading[col]); }
+//      public Object getValueAt(int row, int col) { return cards[row].cardData.get(model.CardDetail.heading[col]); }
 //    };
     JTable table = new JTable(tableData, headings);
     return table;

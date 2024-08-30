@@ -1,14 +1,16 @@
+package util;
+
+import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 public class Helpers {
   static byte[] assetsFile;
@@ -27,23 +29,8 @@ public class Helpers {
     }
     return (int) counter;
   }
-  public static String rPad(String str, Integer length, char car) {
+  public static String rPad(String str, int length, char car) {
     return (str + String.format("%" + length + "s", "").replace(" ", String.valueOf(car))).substring(0, length);
-  }
-  public static int getStartIndex(byte[] rawData, byte[] startSequence) {
-    outer:
-    for (int i = 0; i < rawData.length; i++) {
-      if (rawData[i] == startSequence[0]) {
-        inner:
-        for (int j = 1; j < startSequence.length &&  (j+i) < rawData.length; j++ ) {
-          if (rawData[i + j] != startSequence[j]) {
-            continue outer;
-          }
-        }
-        return i + startSequence.length;
-      }
-    }
-    return -1;
   }
   public static byte[] get4Range(byte[] field, int idx) {
     return Arrays.copyOfRange(field, idx, idx + 4);
@@ -154,5 +141,18 @@ public class Helpers {
       }
     }
     return directoryToBeDeleted.delete();
+  }
+  public static void logAction(String text) {
+    System.out.println("ACTION: "+text);
+  }
+  public static void logError(String text) {
+    System.out.println("ERROR: " + text);
+  }
+
+  public static <T> T[] getArrayFromList(List<T> thing) {
+    return (T[]) thing.toArray(new Object[0]);
+  }
+  public static <T> List<T> getListFromArray(T[] arr) {
+    return Arrays.stream(arr).toList();
   }
 }

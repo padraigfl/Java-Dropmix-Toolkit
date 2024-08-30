@@ -1,13 +1,16 @@
-import java.util.HashSet;
-import java.util.Set;
+package model;
+
+import util.Helpers;
 
 public class PlaylistDetail {
-  String[] cards;
-  int playlistCount;
-  String baffler;
-  String playlistType;
-  String season;
-  String name;
+  public String[] cards;
+  public int playlistCount;
+  public String baffler;
+  public String playlistType;
+  public String season;
+  public String name;
+  public String cardId;
+  public String itemId;
   public PlaylistDetail(String iconName) {
     String playlistName = Helpers.removeQuotes(iconName);
     AppState as = AppState.getInstance();
@@ -20,14 +23,25 @@ public class PlaylistDetail {
         if (this.cards == null) {
           try {
             this.playlistCount = Integer.parseInt(c.cardData.get(CardDetail.SeriesCount));
+            String deckId = c.cardData.get(CardDetail.DeckID);
+            if (deckId != null) {
+              this.cardId = deckId;
+            }
+            String itemId = c.cardData.get(CardDetail.ItemID);
+            if (itemId != null) {
+              this.itemId = itemId;
+            }
           } catch (Exception e) {
             this.playlistCount = playlistName.equals("promo") ? 4 : 12;
           }
           this.cards = new String[this.playlistCount];
           this.playlistType = c.cardData.get(CardDetail.ItemType);
-          this.season = c.cardData.get(CardDetail.Season);
+          this.season = Helpers.removeQuotes(c.cardData.get(CardDetail.Season));
         }
-        this.cards[counter] = c.cardData.get(CardDetail.SourceCID);
+        if (counter < this.playlistCount) {
+          this.cards[counter] = c.cardData.get(CardDetail.SourceCID);
+          counter++;
+        }
       }
     }
   }
