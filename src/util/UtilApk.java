@@ -5,16 +5,16 @@ import com.android.apksigner.ApkSignerTool;
 import model.AppState;
 import model.DropmixSharedAssets;
 import model.Process;
-import org.junit.platform.commons.util.ClassLoaderUtils;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class UtilApk extends Thread {
   private String returnValue;
   private Process currentProcess;
+  static String keyPath;
+  static String certPath;
 
   // experimental multithreaded solution
   public void run(Process p, String input, String output) {
@@ -61,25 +61,25 @@ public class UtilApk extends Thread {
     }
   }
   public static String recompile(String inputPath, String outputPath) {
+    getKeyAndCert();
     try {
-      AppState as = AppState.getInstance();
-      as.setCurrentProcess(Process.RECOMPILING);
+      AppState.setCurrentProcess(Process.RECOMPILING);
       brut.apktool.Main.main(new String[]{"b", inputPath, "-o", DropmixSharedAssets.unsignedPath});
-      as.switchCurrentProcess(Process.RECOMPILING, Process.SIGNING);
+      AppState.switchCurrentProcess(Process.RECOMPILING, Process.SIGNING);
       // TODO is this worth splitting into its own function?
       ApkSignerTool.main(new String[]{
         "sign",
         "--key",
-        "key.pk8", // TODO add valid key
+        UtilApk.keyPath, // TODO add valid key
         "--cert",
-        "certificate.pem",// TODO add valid cert
+        UtilApk.certPath,// TODO add valid cert
         "--in",
         DropmixSharedAssets.unsignedPath,
         "--out",
         outputPath,
       });
-      Files.deleteIfExists(Path.of(DropmixSharedAssets.unsignedPath));
-      as.endCurrentProcess(Process.SIGNING);
+      Files.deleteIfExists(Paths.get(DropmixSharedAssets.unsignedPath));
+      AppState.endCurrentProcess(Process.SIGNING);
       System.out.println("Signed: "+ outputPath);
       return outputPath;
     } catch (BrutException | IOException e) {
@@ -87,6 +87,14 @@ public class UtilApk extends Thread {
       throw new RuntimeException(e);
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+  public static void getKeyAndCert() {
+    if (UtilApk.keyPath == null) {
+      UtilApk.keyPath = Helpers.saveTempFile("/key.pk8", "key.pk8");
+    }
+    if (UtilApk.certPath == null) {
+      UtilApk.certPath = Helpers.saveTempFile("/certificate.pem", "cert.pem");
     }
   }
 }

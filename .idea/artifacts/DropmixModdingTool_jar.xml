@@ -5,8 +5,8 @@
       <element id="module-output" name="DropmixModdingTool" />
       <element id="extracted-dir" path="$PROJECT_DIR$/external_tools/apksigner.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/external_tools/apktool_2.9.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/external_tools/jadb.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/external_tools/slf4j-log4j12-1.7.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/external_tools/jadb.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

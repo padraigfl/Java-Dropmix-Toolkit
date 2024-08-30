@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class AppState {
@@ -103,7 +104,7 @@ public class AppState {
 
     try {
       String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
-      rawData = Files.readAllBytes(Path.of(fileByteArrayPathString));
+      rawData = Files.readAllBytes(Paths.get(fileByteArrayPathString));
       return rawData;
     } catch (IOException | NullPointerException e) {
       throw new Error(e);

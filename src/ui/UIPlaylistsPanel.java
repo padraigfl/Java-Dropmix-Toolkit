@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UIPlaylistsPanel extends JPanel {
   JPanel parentFrame;
@@ -73,7 +74,7 @@ public class UIPlaylistsPanel extends JPanel {
     TreeMap<String, String> swaps = AppState.getInstance().playlistSwap;
     String selectedValue = swaps.get(playlist);
     if (selectedValue != null) {
-      box.setSelectedIndex(Arrays.stream(options).toList().indexOf(selectedValue));
+      box.setSelectedIndex(Arrays.stream(options).collect(Collectors.toList()).indexOf(selectedValue));
       box.validate();
       box.repaint();
     }

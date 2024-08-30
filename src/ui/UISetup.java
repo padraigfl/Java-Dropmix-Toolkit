@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.zip.ZipException;
@@ -91,7 +92,7 @@ public class UISetup extends JPanel {
             JadbConnection jadb = new JadbConnection();
             List<JadbDevice> devices = jadb.getDevices();
             if (devices.size() == 1) {
-              JadbDevice device = devices.getFirst();
+              JadbDevice device = devices.get(0);
               AppState.getInstance().adbDevice = device;
               System.out.println("Android device connected: " + device.toString() );
               refresh();
@@ -196,7 +197,7 @@ public class UISetup extends JPanel {
         if (picker == apkFind) {
 
           try {
-            Files.deleteIfExists(Path.of(DropmixSharedAssets.decompiledPath));
+            Files.deleteIfExists(Paths.get(DropmixSharedAssets.decompiledPath));
           } catch (IOException ex) { }
           text = "APK Selected: " + selectedFile.getAbsolutePath();
           as.apkFile = selectedFile;

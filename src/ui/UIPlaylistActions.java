@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -24,7 +25,7 @@ public class UIPlaylistActions extends JPanel {
   public UIPlaylistActions() {
     setLayout(new GridLayout(5, 1));
     try {
-      Files.deleteIfExists(Path.of(modDir));
+      Files.deleteIfExists(Paths.get(modDir));
     } catch (IOException e) { }
     renderActions();
   }
@@ -69,9 +70,9 @@ public class UIPlaylistActions extends JPanel {
           System.out.println(verifiedModApk.getBytes().length + " "  + saved.toPath());
           Path savePath = saved.toPath();
           if (!savePath.toString().endsWith(".apk")) {
-            savePath = Path.of(savePath.toString() + ".apk");
+            savePath = Paths.get(savePath.toString() + ".apk");
           }
-          Files.write(savePath, Files.readAllBytes(Path.of(verifiedModApk)));
+          Files.write(savePath, Files.readAllBytes(Paths.get(verifiedModApk)));
         } catch (IOException ex) {}
       }
     });
@@ -82,7 +83,7 @@ public class UIPlaylistActions extends JPanel {
   }
   public String modApk() {
     AppState as = AppState.getInstance();
-    Path tempDir = Path.of(modDir).toAbsolutePath();
+    Path tempDir = Paths.get(modDir).toAbsolutePath();
     UtilApk.decompileApk(
       as.apkFile.getAbsolutePath(),
       tempDir.toString()
@@ -90,12 +91,12 @@ public class UIPlaylistActions extends JPanel {
     TreeMap<String, String> swapObj = AppState.getCardSwapFromPlaylist(as.playlistSwap);
 
     byte[] modBytes = as.assetsHandler.applySwap(swapObj);
-    Path assetsPath = Path.of(tempDir.toString() + DropmixSharedAssets.assetsRelativePath);
+    Path assetsPath = Paths.get(tempDir.toString() + DropmixSharedAssets.assetsRelativePath);
     try {
       System.out.println("writing to "+ assetsPath.toAbsolutePath().toString());
       Files.deleteIfExists(assetsPath);
       Files.write(assetsPath, modBytes);
-      Files.write(Path.of("moddedFile"), modBytes);
+      Files.write(Paths.get("moddedFile"), modBytes);
       System.out.println("mod applied");
     } catch (IOException e) {
       System.out.println("mod write fail");
@@ -108,7 +109,7 @@ public class UIPlaylistActions extends JPanel {
   public void clearState() {
     try {
       if (this.verifiedModApk != null) {
-        Files.deleteIfExists(Path.of(this.verifiedModApk));
+        Files.deleteIfExists(Paths.get(this.verifiedModApk));
       }
     } catch (IOException e) {
 

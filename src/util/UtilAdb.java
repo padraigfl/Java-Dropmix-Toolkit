@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
 
@@ -57,7 +58,7 @@ public class UtilAdb {
       }
     }
   }
-  private static  String getAdbPath() {
+  private static String getAdbPath() {
     try {
       String adbLocation = "adb-linux";
       String os = System.getProperty("os.name").toLowerCase();
@@ -70,30 +71,7 @@ public class UtilAdb {
       }
       String jarParent = new File(UtilAdb.class.getProtectionDomain().getCodeSource().getLocation()
         .toURI()).getParent();
-      Path adbPath = Path.of(jarParent + "/" + adbLocation);
-
-      String srcAdbFileName = UtilAdb.class.getResource("/" + adbLocation).getFile();
-      Path srcAdbPath = Path.of(srcAdbFileName);
-      Files.deleteIfExists(Path.of(jarParent + adbLocation));
-      Files.write(adbPath, Files.readAllBytes(srcAdbPath));
-      Files.setPosixFilePermissions(adbPath, EnumSet.of(PosixFilePermission.OWNER_READ
-        , PosixFilePermission.OWNER_WRITE
-        , PosixFilePermission.OWNER_EXECUTE
-        , PosixFilePermission.GROUP_READ
-        , PosixFilePermission.GROUP_WRITE
-        , PosixFilePermission.GROUP_EXECUTE
-        , PosixFilePermission.OTHERS_READ
-        , PosixFilePermission.OTHERS_EXECUTE)
-      );
-
-
-      System.out.println("Saved to" + adbPath.toString() + " " +
-        Files.readAllBytes(adbPath).length
-      );
-
-      return adbPath.toAbsolutePath().toString();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      return Helpers.saveTempFile("/" + adbLocation, adbLocation);
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
@@ -102,7 +80,7 @@ public class UtilAdb {
     startServer();
     try {
       AppState.setCurrentProcess(Process.INSTALLING);
-      new PackageManager(device).forceInstall(Path.of(apkPath).toFile());
+      new PackageManager(device).forceInstall(Paths.get(apkPath).toFile());
       AppState.endCurrentProcess(Process.INSTALLING);
       return true;
     } catch (JadbException | IOException e) {

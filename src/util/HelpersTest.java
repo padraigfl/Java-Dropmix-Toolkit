@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 class HelpersTest {
@@ -33,7 +34,7 @@ class HelpersTest {
 
     try {
       String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
-      assetsFile = Files.readAllBytes(Path.of(fileByteArrayPathString));
+      assetsFile = Files.readAllBytes(Paths.get(fileByteArrayPathString));
       return assetsFile;
     } catch (IOException | NullPointerException e) {
       throw new Error(e);

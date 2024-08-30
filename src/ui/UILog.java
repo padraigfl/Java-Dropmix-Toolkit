@@ -58,11 +58,11 @@ public class UILog extends JPanel {
   private void refreshText() {
     tp.setText(log);
     tp.repaint();
-    CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
-      if (!tp.getText().equals(log)) {
-        refreshText();
-      }
-    });
+//    CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
+//      if (!tp.getText().equals(log)) {
+//        refreshText();
+//      }
+//    });
   }
   private void logSetup() {
     PrintStream cmd = System.out;

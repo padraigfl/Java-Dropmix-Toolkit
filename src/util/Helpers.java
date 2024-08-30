@@ -1,16 +1,15 @@
 package util;
 
-import javax.swing.*;
-import java.awt.event.ActionListener;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TreeMap;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Helpers {
   static byte[] assetsFile;
@@ -49,7 +48,7 @@ public class Helpers {
 
     try {
       String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
-      assetsFile = Files.readAllBytes(Path.of(fileByteArrayPathString));
+      assetsFile = Files.readAllBytes(Paths.get(fileByteArrayPathString));
       return assetsFile;
     } catch (IOException | NullPointerException e) {
       throw new Error(e);
@@ -92,7 +91,7 @@ public class Helpers {
       }
       data.add(dataRow);
     }
-    return data.toArray(new String[data.size()][data.getFirst().length]);
+    return data.toArray(new String[data.size()][data.get(0).length]);
   }
 
   static byte[] stringToByteArray(String str) {
@@ -153,6 +152,35 @@ public class Helpers {
     return (T[]) thing.toArray(new Object[0]);
   }
   public static <T> List<T> getListFromArray(T[] arr) {
-    return Arrays.stream(arr).toList();
+    return Arrays.stream(arr).collect(Collectors.toList());
+  }
+
+  public static String saveTempFile(String resourcePath, String tempFileName) {
+    try {
+      String srcFileName = UtilAdb.class.getResource(resourcePath).getFile();
+      System.out.println(srcFileName);
+      byte[] adbBytes = IOUtils.toByteArray(UtilAdb.class.getResourceAsStream(resourcePath));
+
+      Path tempFilePath = Files.createTempFile(tempFileName, null);
+      Files.write(tempFilePath, adbBytes);
+      Files.setPosixFilePermissions(tempFilePath,
+        EnumSet.of(
+          PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE,
+          PosixFilePermission.OWNER_EXECUTE,
+          PosixFilePermission.GROUP_READ,
+          PosixFilePermission.GROUP_WRITE,
+          PosixFilePermission.GROUP_EXECUTE,
+          PosixFilePermission.OTHERS_READ,
+          PosixFilePermission.OTHERS_EXECUTE)
+      );
+      System.out.println("Saved to" + tempFilePath.toString() + " " +
+        Files.readAllBytes(tempFilePath).length
+      );
+
+      return tempFilePath.toAbsolutePath().toString();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

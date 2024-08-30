@@ -71,5 +71,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="ren.crux.jadb.base2" level="project" />
   </component>
 </module>
