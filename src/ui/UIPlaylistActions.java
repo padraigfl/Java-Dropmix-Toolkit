@@ -48,7 +48,7 @@ public class UIPlaylistActions extends JPanel {
         System.out.println("Installing modded APK");
         boolean result = UtilAdb.installApk(
           as.adbDevice,
-          modDir
+          verifiedModApk
         );
 
         if (result) {

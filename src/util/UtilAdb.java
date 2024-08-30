@@ -12,10 +12,9 @@ import java.nio.file.Path;
 public class UtilAdb {
   public static boolean installApk(JadbDevice device, String apkPath) {
     try {
-      AppState as = AppState.getInstance();
-      as.setCurrentProcess(Process.INSTALLING);
+      AppState.setCurrentProcess(Process.INSTALLING);
       new PackageManager(device).forceInstall(Path.of(apkPath).toFile());
-      as.endCurrentProcess(Process.INSTALLING);
+      AppState.endCurrentProcess(Process.INSTALLING);
       return true;
     } catch (JadbException | IOException e) {
       e.printStackTrace();
