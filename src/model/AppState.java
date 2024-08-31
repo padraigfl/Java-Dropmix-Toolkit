@@ -110,9 +110,16 @@ public class AppState {
       throw new Error(e);
     }
   }
+  public void removePlaylistSwap(String p1) {
+    String p2 = this.playlistSwap.get(p1);
+    this.playlistSwap.remove(p1);
+    this.playlistSwap.remove(p2);
+  }
   public void setPlaylistSwap(String p1, String p2) throws Exception {
     if (p1.contains("---") || p2.contains("---")) {
       // for handling reset of field
+      this.playlistSwap.remove(p1);
+      this.playlistSwap.remove(p2);
       return;
     }
     if (this.playlistSwap.get(p1) != null || this.playlistSwap.get(p2) != null) {

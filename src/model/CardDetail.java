@@ -93,40 +93,43 @@ public class CardDetail {
   private void setCardId(String newId) {
     this.cardData.put(CardDetail.SourceCID, newId);
   }
-  public String getCardSeason() {
-    return this.cardData.get(CardDetail.Season);
+  public int getCardSeason() {
+    try {
+      return Integer.parseInt(
+        this.cardData.get(CardDetail.Season).replaceAll("\"", "")
+      );
+    } catch (Exception e) {
+      return 0;
+    }
+  }
+  private void shortedDBRowForModification(int changeRequired) {
+          /*
+        SongRef would be preferable here as it will generally be longer but may cause issues with FX cards
+        With this in mind it makes sense to use the Artist name instead
+        TODO Investigate whether FX songRef values need to be swapped over when swap is applied
+       */
+    String fieldToChange =
+      changeRequired < 0
+        && this.cardData.get(CardDetail.SongRef).length() < Math.abs(changeRequired) + 1
+        ? CardDetail.SongRef
+        : CardDetail.ArtistRef;
+    String songTitle = this.cardData.get(fieldToChange);
+    if (changeRequired > 0) {
+      songTitle = Helpers.rPad(songTitle, songTitle.length() + Math.abs(changeRequired), ' ');
+    } else {
+      songTitle = songTitle.substring(0, songTitle.length() - Math.abs(changeRequired) );
+    }
+    this.cardData.put(fieldToChange, songTitle);
   }
   public void setSourceCID(String newCardId, boolean preserveLength) {
     String currentId = getCardId();
     int songTitleLengthChangeRequired = currentId.length() - newCardId.length();
     if (!preserveLength && songTitleLengthChangeRequired != 0) {
-      /*
-        SongRef would be preferable here as it will generally be longer but may cause issues with FX cards
-        With this in mind it makes sense to use the Artist name instead
-        TODO Investigate whether FX songRef values need to be swapped over when swap is applied
-       */
-      String fieldToChange =
-        songTitleLengthChangeRequired < 0
-          && this.cardData.get(CardDetail.SongRef).length() < Math.abs(songTitleLengthChangeRequired) + 1
-          ? CardDetail.SongRef
-          : CardDetail.ArtistRef;
-      String songTitle = this.cardData.get(fieldToChange);
-      if (songTitleLengthChangeRequired > 0) {
-        songTitle = Helpers.rPad(songTitle, songTitle.length() + Math.abs(songTitleLengthChangeRequired), ' ');
-      } else {
-        songTitle = songTitle.substring(0, songTitle.length() - Math.abs(songTitleLengthChangeRequired) );
-      }
-      this.cardData.put(fieldToChange, songTitle);
+      shortedDBRowForModification(songTitleLengthChangeRequired);
     }
     this.setCardId(newCardId);
   }
-  public String rowToDataString() {
-    ArrayList<String> sb = new ArrayList<>();
-    for (String h: heading) {
-      sb.add(cardData.get(h));
-    }
-    return String.join(",", sb);
-  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (String heading: CardDetail.heading) {

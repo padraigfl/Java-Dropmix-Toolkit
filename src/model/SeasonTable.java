@@ -38,27 +38,29 @@ public class SeasonTable {
     }
   }
 
-  public byte[] backToByteArray() {
-    byte[] newByteArray = this.rawDb.clone();
-
-    int counter = 4;
-
-    String heading = String.join(",", this.columns);
-    for (int i = 0; i < heading.length(); i++) {
-      newByteArray[counter] = (byte) heading.charAt(i);
-      counter++;
+  public byte[] backToByteArray(boolean includeEndNewLine) {
+    String seasonCSV = SeasonTable.csvWriter(toNestedString(), ",", "\"", cards[0].getCardSeason());
+    byte[] seasonByteArray = new byte[rawDb.length];
+    // insert DB length
+    for (int i = 0; i < 4; i++) {
+      seasonByteArray[i] = rawDb[i];
     }
-    for (CardDetail card: this.cards) {
-      String cardRow = card.rowToDataString();
-      for (int i = 0; i < cardRow.length(); i++) {
-        newByteArray[counter] = (byte) cardRow.charAt(i);
-        counter++;
-      }
+    System.out.println("size diff: " + rawDb.length + ", " + seasonCSV.length());
+    // build out byte array
+    for (int i = 0; i < seasonCSV.length(); i++) {
+      seasonByteArray[i + 4] = (byte) seasonCSV.charAt(i);
     }
-    if (newByteArray.length != this.rawDb.length) {
-      throw new Error("database-length-error");
+    for (int i = seasonCSV.length() + 4; i < rawDb.length; i++) {
+      seasonByteArray[i] = rawDb[i];
     }
-    return newByteArray;
+    return seasonByteArray;
+  }
+  static String getDb(byte[] b) {
+    StringBuilder sb = new StringBuilder();
+    for (byte a: b) {
+      sb.append((char) a);
+    }
+    return sb.toString();
   }
   /**/
   public String[][] toNestedString() {
@@ -126,6 +128,10 @@ public class SeasonTable {
     for (String[] row: csv) {
       int currentColIdx = 0;
       for (String cell: row) {
+        boolean hasComma = cell.contains("£") || cell.contains(",");
+        if (cell.contains("ays Ahead")) {
+          System.out.println(cell);
+        }
         String formattedString = cell.replaceAll("£", ",");
         boolean isLikelyString = true;
         try {
@@ -137,11 +143,11 @@ public class SeasonTable {
           }
         }
         if (
-          currentRowIdx != 0
-          && (
-            (isLikelyString && allStringsTextQualifier)
-            || (isSeasonFieldString && Objects.equals(csv[0][currentColIdx], CardDetail.Season))
-          )
+          (currentRowIdx != 0
+            && (
+              (isLikelyString && allStringsTextQualifier)
+              || (isSeasonFieldString && Objects.equals(csv[0][currentColIdx], CardDetail.Season))
+          )) || (hasComma)
         ){
           formattedString = textQualifier + formattedString + textQualifier;
         }

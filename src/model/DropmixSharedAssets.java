@@ -63,15 +63,17 @@ public class DropmixSharedAssets {
       CardDetail c2 = modifiedAssets.cards.get(s2);
       String c1CardId = c1.getCardId();
       String c2CardId = c2.getCardId();
+
       if (!alreadySwapped.contains(c1CardId) && !alreadySwapped.contains(c2CardId)) {
+
+        changedSeasons.add("" + c1.getCardSeason());
+        changedSeasons.add("" + c2.getCardSeason());
         // if both are from the same season there's no need to worry about the output table length
-        boolean isSameSeason = c1.getCardSeason().equals(c2.getCardSeason());
+        boolean isSameSeason = c1.getCardSeason() == (c2.getCardSeason());
         c1.setSourceCID(c2CardId, isSameSeason);
         c2.setSourceCID(c1CardId, isSameSeason);
         alreadySwapped.add(c1CardId);
         alreadySwapped.add(c2CardId);
-        changedSeasons.add(c1.getCardSeason());
-        changedSeasons.add(c2.getCardSeason());
       }
     });
     Counter databaseModified = new Counter(0);
@@ -79,28 +81,8 @@ public class DropmixSharedAssets {
     modifiedAssets.seasons.forEach(new BiConsumer<Integer, SeasonTable>() {
       @Override
       public void accept(Integer seasonIdx, SeasonTable seasonTable) {
-        String seasonArray = SeasonTable.csvWriter(seasonTable.toNestedString(), ",", "\"", seasonIdx);
-        byte[] seasonByteArray = new byte[seasonArray.length() + 4];
-        for (int i = 0; i < 4; i++) {
-          seasonByteArray[i] = seasonTable.rawDb[i];
-        }
-        char[] seasonCharArray = seasonArray.toCharArray();
-        for (int i = 0; i < seasonArray.length(); i++) {
-          seasonByteArray[i + 4] = (byte) seasonCharArray[i];
-        }
-        if (seasonByteArray.length != seasonTable.length) {
-          if (seasonIdx == 0) {
-            StringBuilder sb = new StringBuilder();
-            for (byte b: seasonTable.rawDb) {
-              sb.append((char) b);
-            }
-          }
+        byte[] seasonByteArray = seasonTable.backToByteArray(false);
 
-          // TODO be consistent about lengths and start indexes
-          if (seasonByteArray.length != seasonTable.rawDb.length) {
-            throw new RuntimeException("modified-database-size-wrong:" + seasonByteArray.length + " " + seasonTable.rawDb.length);
-          }
-        }
         databaseSize.iterate(seasonTable.length);
         for (int i = 0; i < seasonByteArray.length; i++) {
           int currentIdx = seasonTable.startIdx + i;
@@ -112,6 +94,34 @@ public class DropmixSharedAssets {
       }
     });
     System.out.printf("Updated %d Seasons; %d of %d (%.2f) bytes", changedSeasons.size(), databaseModified.getCounter(), databaseSize.getCounter(), ((double) databaseModified.getCounter() / (double) databaseSize.getCounter()));
+    int sCount = 0;
+    for (SeasonTable s: modifiedAssets.seasons.values()) {
+      int size = s.length;
+      StringBuilder start = new StringBuilder();
+      StringBuilder end = new StringBuilder();
+      StringBuilder all = new StringBuilder();
+      StringBuilder old = new StringBuilder();
+      int printRange = 1600;
+      if (s.length < printRange) {
+        continue;
+      }
+      for (int i = 0; i < printRange; i++) {
+        all.append((char) s.rawDb[i]);
+      }
+      SeasonTable oldS= seasons.get(sCount);
+      for (int i = 0; i < size; i++) {
+        try {
+          all.append((char) s.rawDb[i]);
+          old.append((char) oldS.rawDb[i]);
+        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {}
+      }
+    }
+    DropmixSharedAssets ds = new DropmixSharedAssets(clonedAssetsFile);
+    for (int i = 0; i < 3; i++) {
+      SeasonTable s1 = modifiedAssets.seasons.get(i);
+      SeasonTable s2 = ds.seasons.get(i);
+      System.out.printf("\nSize: %d %d; db len: %d %d", s1.length, s2.length, s1.rawDb.length, s2.rawDb.length);
+    }
     return clonedAssetsFile;
   }
   public static int getStartIndex(byte[] rawData, byte[] startSequence) {

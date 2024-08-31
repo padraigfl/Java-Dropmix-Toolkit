@@ -85,7 +85,13 @@ public class UIPlaylistsPanel extends JPanel {
       public void itemStateChanged(ItemEvent event) {
         if (event.getStateChange() == ItemEvent.SELECTED) {
           try {
-            AppState.getInstance().setPlaylistSwap(playlist, event.getItem().toString());
+            System.out.println(event.getItem() + "<-->" + playlist);
+            // clear both fields if this value is selected
+            if (event.getItem().toString().contains("---")) {
+              AppState.getInstance().removePlaylistSwap(playlist);
+            } else {
+              AppState.getInstance().setPlaylistSwap(playlist, event.getItem().toString());
+            }
             // box.setSelectedItem(event.getItem());
             oldSelectionItem = event.getItem();
             that.setGrid();

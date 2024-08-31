@@ -48,6 +48,7 @@ I need to know the version of Java you're using and the output of the log panel 
 
 ### Known Issues:
 
+1. A fresh install of all card data is required after each install currently [I'm guessing this is some kind of auto refresh function baked into the app]
 1. I raced through this so the UI is janky as hell. I expect frequent restarts. Some of it looks pretty bad with the Java 1.8 compilation settings but it'll do
 1. Logs aren't updating correctly; I think I need to add some multithreading functionality
 1. UI in general has weird lags tbh
@@ -63,8 +64,10 @@ I need to know the version of Java you're using and the output of the log panel 
 1. Directly installs modified APK onto connected android device (requires ADB server instance)
 
 ## Future work:
+
+1. Alternative swap process using `level0` data (will not require fresh data downloads so future-proof but won't have 100% accurate card behaviour)
 1. Include associated baffler cards in playlist swaps
-1. Streamline process some more (can I launch the ADB server within the jar code?)
+1. Mod iOS app on M1 devices
 1. Verify working on Windows
 1. Tools for straightforward installing of APK without mods
 1. Mayyyyybe custom cards? This involves modifying the level0 assets file instead and injecting custom data files post-install so it's not so easy

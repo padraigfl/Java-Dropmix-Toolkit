@@ -34,6 +34,24 @@ public class Helpers {
   public static byte[] get4Range(byte[] field, int idx) {
     return Arrays.copyOfRange(field, idx, idx + 4);
   }
+  public static byte[] getNRange(byte[] field, int idx, int len) {
+    return Arrays.copyOfRange(field, idx, idx + len);
+  }
+  public static char[] byteToChars(byte[] field) {
+    char[] chars = new char[field.length];
+    int i = 0;
+    for (byte b: field) {
+      chars[i++] = (char) b;
+    }
+    return chars;
+  }
+  public static String bytetoString(byte[] field) {
+    StringBuilder sb = new StringBuilder();
+    for (byte b: field) {
+      sb.append((char) b);
+    }
+    return sb.toString();
+  }
 
   public static byte[] loadLocalFile(String strPath) {
     try {
