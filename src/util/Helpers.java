@@ -181,17 +181,19 @@ public class Helpers {
 
       Path tempFilePath = Files.createTempFile(tempFileName, null);
       Files.write(tempFilePath, adbBytes);
-      Files.setPosixFilePermissions(tempFilePath,
-        EnumSet.of(
-          PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE,
-          PosixFilePermission.OWNER_EXECUTE,
-          PosixFilePermission.GROUP_READ,
-          PosixFilePermission.GROUP_WRITE,
-          PosixFilePermission.GROUP_EXECUTE,
-          PosixFilePermission.OTHERS_READ,
-          PosixFilePermission.OTHERS_EXECUTE)
-      );
+      if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        Files.setPosixFilePermissions(tempFilePath,
+          EnumSet.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_EXECUTE,
+            PosixFilePermission.GROUP_READ,
+            PosixFilePermission.GROUP_WRITE,
+            PosixFilePermission.GROUP_EXECUTE,
+            PosixFilePermission.OTHERS_READ,
+            PosixFilePermission.OTHERS_EXECUTE)
+        );
+      }
       System.out.println("Saved to" + tempFilePath.toString() + " " +
         Files.readAllBytes(tempFilePath).length
       );
