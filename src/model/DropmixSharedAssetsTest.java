@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 class DropmixSharedAssetsTest {
   Helpers helper = new Helpers();
-  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(helper.loadFile());
+  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(helper.loadFile("sharedassets0.assets.split194"));
 
 //  @Test
 //  void validateConstructor() {
@@ -72,8 +72,8 @@ class DropmixSharedAssetsTest {
     Assertions.assertEquals(moddedFile.length, oldLength);
     Assertions.assertNotEquals(moddedFile, dropmixSharedAssets.rawData);
     for (int i = 0; i < 3; i++) {
-      SeasonTable s1 = dropmixSharedAssets.seasons.get(i);
-      SeasonTable s2 = newVersion.seasons.get(i);
+      DropmixSharedAssetsSeason s1 = dropmixSharedAssets.seasons.get(i);
+      DropmixSharedAssetsSeason s2 = newVersion.seasons.get(i);
       byte[] original = Helpers.getNRange(s1.rawDb, 4, s1.rawDb.length - 4);
       byte[] modified = s2.backToByteArray(i == 2);
       Assertions.assertEquals(s1.length, s2.length);
@@ -108,7 +108,7 @@ class DropmixSharedAssetsTest {
   void replaceRogueCommas() {
     String rt = "\"Flo Rida\",\"I Don't Like It, I Love It (ft. Robin Thicke, Verdine White)\",\"Loop\"";
     String expect =  "\"Flo Rida\",\"I Don't Like It£ I Love It (ft. Robin Thicke£ Verdine White)\",\"Loop\"";
-    String formatted = SeasonTable.replaceRogueCommas(rt, ",");
+    String formatted = DropmixSharedAssetsSeason.replaceRogueCommas(rt, ",");
     Assertions.assertEquals(expect, formatted);
   }
 }

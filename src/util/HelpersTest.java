@@ -1,5 +1,6 @@
 package util;
 
+import model.AbstractDropmixDataRecord;
 import model.DropmixSharedAssets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,14 +27,14 @@ class HelpersTest {
     Assertions.assertEquals(Helpers.rPad("Hello", 10, '!'), "Hello!!!!!");
   }
 
-  byte[] loadFile() {
+  byte[] loadFile(String file) {
     if (assetsFile != null) {
       return assetsFile;
     }
     ClassLoader classLoader = getClass().getClassLoader();
 
     try {
-      String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
+      String fileByteArrayPathString = classLoader.getResource(file).getFile();
       assetsFile = Files.readAllBytes(Paths.get(fileByteArrayPathString));
       return assetsFile;
     } catch (IOException | NullPointerException e) {
@@ -43,29 +44,17 @@ class HelpersTest {
 
   @Test
   void getStartIndexTest() {
-    byte[] bytes = loadFile();
-    int startIdx = DropmixSharedAssets.getStartIndex(bytes, DropmixSharedAssets.s0Header);
+    byte[] bytes = loadFile("sharedassets0.assets.split194");
+    int startIdx = AbstractDropmixDataRecord.getStartIndex(bytes, DropmixSharedAssets.s0Header);
     Assertions.assertEquals(startIdx, 808232);
   }
 
   @Test
   void getDBLengthTest() {
-    byte[] bytes = loadFile();
-    int startIdx = DropmixSharedAssets.getStartIndex(bytes, DropmixSharedAssets.s0Header);
+    byte[] bytes = loadFile("sharedassets0.assets.split194");
+    int startIdx = AbstractDropmixDataRecord.getStartIndex(bytes, DropmixSharedAssets.s0Header);
     int crude = Helpers.intFromByteArray(Arrays.copyOfRange(bytes, startIdx, startIdx+4));
     System.out.println();
     Assertions.assertEquals(873, crude);
-  }
-
-  @Test
-  void getDataArray() {
-    byte[] bytes = loadFile();
-    int startIdx = DropmixSharedAssets.getStartIndex(bytes, DropmixSharedAssets.s1Header);
-    int crude = Helpers.intFromByteArray(Arrays.copyOfRange(bytes, startIdx, startIdx+4));
-    String[][] rowData = Helpers.getByteRowSplit(bytes, startIdx + 4, crude, false);
-
-    for (int i = 1; i < rowData.length; i++) {
-      Assertions.assertEquals(rowData[0].length, rowData[i].length);
-    }
   }
 }

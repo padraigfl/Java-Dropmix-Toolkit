@@ -1,8 +1,8 @@
 package ui;
 
 import model.AppState;
-import model.PlaylistDetail;
 import model.Process;
+import model.DropmixSharedAssetsPlaylist;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class UIPlaylistsPanel extends JPanel {
 
   public void setGrid() {
     removeAll();
-    PlaylistDetail[] playlists = AppState.getInstance().getPlaylists();
+    DropmixSharedAssetsPlaylist[] playlists = AppState.getInstance().getPlaylists();
     String[] headings = new String[]{ "Name", "Count", "Type", "Playlist#", "Action" };
     setLayout(new GridLayout(playlists.length + 1, 5));
     int width = (int) ( UIMain.width * 0.65);
@@ -33,7 +33,7 @@ public class UIPlaylistsPanel extends JPanel {
       add(getText(h));
     }
 
-    for (PlaylistDetail pl : playlists) {
+    for (DropmixSharedAssetsPlaylist pl : playlists) {
       add(getText(pl.name));
       add(getText("" + pl.playlistCount));
       add(getText(pl.playlistType));
@@ -54,11 +54,11 @@ public class UIPlaylistsPanel extends JPanel {
 
   public String[] getPlaylistOptions(String playlist) {
     String emptyValue = "-----";
-    PlaylistDetail[] playlists = AppState.getInstance().getPlaylists();
+    DropmixSharedAssetsPlaylist[] playlists = AppState.getInstance().getPlaylists();
     TreeMap<String, String> swap = AppState.getInstance().swapOptions;
     ArrayList<String> validPlaylists = new ArrayList<>();
     validPlaylists.add(emptyValue);
-    for (PlaylistDetail pl: playlists) {
+    for (DropmixSharedAssetsPlaylist pl: playlists) {
       if (
         !pl.name.equals(playlist)
           && pl.playlistCount == 15

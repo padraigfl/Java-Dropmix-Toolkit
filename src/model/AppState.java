@@ -3,11 +3,9 @@ package model;
 import se.vidstige.jadb.JadbDevice;
 import ui.UIMain;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -24,6 +22,7 @@ public class AppState {
   public Process currentProcess = Process.NONE;
   public UIMain appFrame; // for forcing refreshes
   public boolean isNestedLog;
+  public boolean iOS = false;
   private AppState() {
   }
   public static AppState getInstance() {
@@ -45,38 +44,38 @@ public class AppState {
     this.assetsHandler = new DropmixSharedAssets(fileData);
   }
 
-  public CardDetail[] getCards() {
-    ArrayList<CardDetail> cards = new ArrayList<CardDetail>();
+  public DropmixSharedAssetsCard[] getCards() {
+    ArrayList<DropmixSharedAssetsCard> cards = new ArrayList<DropmixSharedAssetsCard>();
     try {
       int seasonIdx = 0;
-      SeasonTable season = this.assetsHandler.seasons.get(seasonIdx++);
+      DropmixSharedAssetsSeason season = this.assetsHandler.seasons.get(seasonIdx++);
       while (season != null) {
         cards.addAll(Arrays.asList(season.cards));
         season = this.assetsHandler.seasons.get(seasonIdx++);
       }
-      return cards.toArray(new CardDetail[0]);
+      return cards.toArray(new DropmixSharedAssetsCard[0]);
     } catch (Exception e) {
       e.printStackTrace();
-      return new CardDetail[0];
+      return new DropmixSharedAssetsCard[0];
     }
   }
-  public PlaylistDetail[] getPlaylists() {
+  public DropmixSharedAssetsPlaylist[] getPlaylists() {
     Set<String> playlistNames = new HashSet<String>();
-    for (CardDetail c: AppState.getInstance().getCards()) {
-      playlistNames.add(c.cardData.get(CardDetail.SeriesIcon));
+    for (DropmixSharedAssetsCard c: AppState.getInstance().getCards()) {
+      playlistNames.add(c.data.get(DropmixSharedAssetsCard.SeriesIcon));
     }
     String[] playlistNamesArray = playlistNames.toArray(new String[0]);
 
 
-    ArrayList<PlaylistDetail> seasons = new ArrayList<>();
+    ArrayList<DropmixSharedAssetsPlaylist> seasons = new ArrayList<>();
 
     for (int i=0; i < playlistNames.size(); i++) {
-      PlaylistDetail playlist = new PlaylistDetail(playlistNamesArray[i]);
+      DropmixSharedAssetsPlaylist playlist = new DropmixSharedAssetsPlaylist(playlistNamesArray[i]);
       seasons.add(playlist);
     }
     // this is required to sort the playlists in the common order
-    Collections.sort(seasons, new Comparator<PlaylistDetail>(){
-      public int compare(PlaylistDetail o1, PlaylistDetail o2)
+    Collections.sort(seasons, new Comparator<DropmixSharedAssetsPlaylist>(){
+      public int compare(DropmixSharedAssetsPlaylist o1, DropmixSharedAssetsPlaylist o2)
       {
         int val = o1.season.compareTo(o2.season);
         if (val == 0) {
@@ -94,7 +93,7 @@ public class AppState {
         return val;
       }
     });
-    return seasons.toArray(new PlaylistDetail[0]);
+    return seasons.toArray(new DropmixSharedAssetsPlaylist[0]);
   }
   byte[] loadFile() {
     if (rawData != null) {
@@ -128,7 +127,7 @@ public class AppState {
     if (this.playlistSwap.containsValue(p1) || this.playlistSwap.containsValue(p2)) {
       throw new Exception("value-in-use");
     }
-    for(PlaylistDetail pl : this.getPlaylists()) {
+    for(DropmixSharedAssetsPlaylist pl : this.getPlaylists()) {
       if (pl.name == p1 || pl.name == p2) {
         if (pl.playlistCount != 15) {
           throw new Exception("invalid-playlist");
@@ -204,16 +203,16 @@ public class AppState {
       }
     }
     String[] playlistNames = plSwap.keySet().toArray(new String[0]);
-    PlaylistDetail[] playlists = getInstance().getPlaylists();
-    TreeMap<String, PlaylistDetail> playlistDetailTreeMap = new TreeMap<String, PlaylistDetail>();
+    DropmixSharedAssetsPlaylist[] playlists = getInstance().getPlaylists();
+    TreeMap<String, DropmixSharedAssetsPlaylist> dropmixSharedAssetsPlaylistTreeMap = new TreeMap<String, DropmixSharedAssetsPlaylist>();
     TreeMap<String, String> generatedCardSwap = new TreeMap<>();
     Set<String> alreadySwappedPlaylists = new HashSet<>();
-    for (PlaylistDetail pl: playlists) {
-      playlistDetailTreeMap.put(pl.name, pl);
+    for (DropmixSharedAssetsPlaylist pl: playlists) {
+      dropmixSharedAssetsPlaylistTreeMap.put(pl.name, pl);
     }
     for (String playlist: playlistNames) {
-      PlaylistDetail srcPl = playlistDetailTreeMap.get(playlist);
-      PlaylistDetail swapPl = playlistDetailTreeMap.get(plSwap.get(playlist));
+      DropmixSharedAssetsPlaylist srcPl = dropmixSharedAssetsPlaylistTreeMap.get(playlist);
+      DropmixSharedAssetsPlaylist swapPl = dropmixSharedAssetsPlaylistTreeMap.get(plSwap.get(playlist));
       if (alreadySwappedPlaylists.contains(swapPl.name)) {
         continue;
       }
