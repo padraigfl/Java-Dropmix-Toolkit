@@ -22,6 +22,7 @@ public class UtilAdb {
   private UtilAdb() {
 
   }
+
   public static  void setAdbPath() {
     UtilAdb.adbPath = getAdbPath();
   }

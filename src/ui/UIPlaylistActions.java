@@ -1,8 +1,8 @@
 package ui;
 
 import model.AppState;
-import model.CardDetail;
 import model.DropmixSharedAssets;
+import model.Process;
 import util.UtilAdb;
 import util.UtilApk;
 
@@ -12,16 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class UIPlaylistActions extends JPanel {
   public String verifiedModApk;
   public static final String modDir = "dropmix_modded_src";
+
   public UIPlaylistActions() {
     setLayout(new GridLayout(5, 1));
     try {
@@ -33,14 +32,23 @@ public class UIPlaylistActions extends JPanel {
     removeAll();
     AppState as = AppState.getInstance();
 
+    JButton resignedApkBtn = SwingFactory.buildButton("Build Re-Signed APK", new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        freshDecompile(false);
+      }
+    });
+    resignedApkBtn.setEnabled(verifiedModApk == null && as.currentProcess.equals(Process.NONE) && as.playlistSwap.isEmpty());
+    add(resignedApkBtn);
+
     JButton modApkBtn = SwingFactory.buildButton("Validate Modified APK", new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        modApk();
+        freshDecompile(true);
         System.out.println("Modified dropmix generated");
       }
     });
-    modApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null);
+    modApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null && as.currentProcess.equals(Process.NONE));
     add(modApkBtn);
 
     JButton installApkBtn = SwingFactory.buildButton("Install APK", new ActionListener() {
@@ -81,31 +89,77 @@ public class UIPlaylistActions extends JPanel {
     add(installApkBtn);
     add(saveApk);
   }
-  public String modApk() {
+  private void freshDecompile(boolean useMod) {
     AppState as = AppState.getInstance();
     Path tempDir = Paths.get(modDir).toAbsolutePath();
-    UtilApk.decompileApk(
-      as.apkFile.getAbsolutePath(),
-      tempDir.toString()
-    );
-    TreeMap<String, String> swapObj = AppState.getCardSwapFromPlaylist(as.playlistSwap);
-
-    byte[] modBytes = as.assetsHandler.applySwap(swapObj);
-    Path assetsPath = Paths.get(tempDir.toString() + DropmixSharedAssets.assetsRelativePath);
-    try {
-      System.out.println("writing to "+ assetsPath.toAbsolutePath().toString());
-      Files.deleteIfExists(assetsPath);
-      Files.write(assetsPath, modBytes);
-      Files.write(Paths.get("moddedFile"), modBytes);
-      System.out.println("mod applied");
-    } catch (IOException e) {
-      System.out.println("mod write fail");
-    }
-    String output = UtilApk.recompile(tempDir.toAbsolutePath().toString(), "Dropmix190mod.apk");
-    this.verifiedModApk = output;
-    this.renderActions();
-    return output;
+    AppState.setCurrentProcess(Process.DECOMPILING);
+    SwingWorker decompile = new SwingWorker() {
+      @Override
+      protected Object doInBackground() throws Exception {
+        renderActions();
+        UtilApk.decompileApk(as.apkFile.getAbsolutePath(), tempDir.toString());
+        if (useMod) {
+          AppState.switchCurrentProcess(Process.DECOMPILING, Process.GENERATING_MOD);
+          freshModify();
+        } else {
+          AppState.switchCurrentProcess(Process.DECOMPILING, Process.RECOMPILING);
+          recompile(useMod);
+        }
+        return null;
+      }
+    };
+    decompile.execute();
   }
+  // apply mod
+  private void freshModify() {
+    AppState as = AppState.getInstance();
+    SwingWorker modify = new SwingWorker() {
+      @Override
+      protected Object doInBackground() throws Exception {
+        renderActions();
+        TreeMap<String, String> swapObj = AppState.getCardSwapFromPlaylist(as.playlistSwap);
+        Path tempDir = Paths.get(modDir).toAbsolutePath();
+        byte[] modBytes = as.assetsHandler.applySwap(swapObj);
+        Path assetsPath = Paths.get(tempDir + DropmixSharedAssets.assetsRelativePath);
+        try {
+          System.out.println("writing to "+ assetsPath.toAbsolutePath().toString());
+          Files.deleteIfExists(assetsPath);
+          Files.write(assetsPath, modBytes);
+          Files.write(Paths.get("moddedFile"), modBytes);
+          System.out.println("mod applied");
+          AppState.switchCurrentProcess(Process.GENERATING_MOD, Process.RECOMPILING);
+          recompile(true);
+        } catch (IOException e) {
+          System.out.println("mod write fail");
+        }
+        return null;
+      }
+    };
+    modify.execute();
+  }
+  // recompile and sign
+  public void recompile(boolean useMod) {
+    UIPlaylistActions that = this;
+    SwingWorker sw = new SwingWorker() {
+      @Override
+      protected Object doInBackground() throws Exception {
+        renderActions();
+        Path tempDir = Paths.get(modDir).toAbsolutePath();
+        String output = UtilApk.recompile(tempDir.toAbsolutePath().toString(), "Dropmix190mod.apk");
+        that.verifiedModApk = output;
+        that.renderActions();
+        AppState.switchCurrentProcess(Process.RECOMPILING, Process.NONE);
+        if (useMod) {
+          System.out.println("Modified APK is now ready");
+        } else {
+          System.out.println("Re-signed APK generated");
+        }
+        return output;
+      }
+    };
+    sw.execute();
+  }
+
   public void clearState() {
     try {
       if (this.verifiedModApk != null) {

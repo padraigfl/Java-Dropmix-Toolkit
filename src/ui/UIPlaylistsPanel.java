@@ -2,6 +2,7 @@ package ui;
 
 import model.AppState;
 import model.PlaylistDetail;
+import model.Process;
 
 import javax.swing.*;
 import java.awt.*;
@@ -84,6 +85,24 @@ public class UIPlaylistsPanel extends JPanel {
       @Override
       public void itemStateChanged(ItemEvent event) {
         if (event.getStateChange() == ItemEvent.SELECTED) {
+          // prevent automatic setting of prior value from triggering further logic
+          if (event.getItem() == oldSelectionItem) {
+            return;
+          }
+          // Don't allow edits if process is active
+          if (AppState.getInstance().currentProcess != Process.NONE) {
+            System.out.println("Invalid item change action, process active "+AppState.getInstance().currentProcess);
+            box.setSelectedIndex((Integer) oldSelectionItem);
+            return;
+          }
+          // display warning message if changing from values used to build mod
+          if (actions.verifiedModApk != null) {
+            int i = JOptionPane.showConfirmDialog(null, "This action will clear the current APK mod, continue?");
+            if (i != JOptionPane.YES_OPTION) {
+              box.setSelectedIndex((Integer) oldSelectionItem);
+              return;
+            }
+          }
           try {
             System.out.println(event.getItem() + "<-->" + playlist);
             // clear both fields if this value is selected

@@ -145,7 +145,6 @@ public class AppState {
       return;
     }
     as.appFrame.repaint();
-    System.out.println("New Process" + p);
     if (as.currentProcess != Process.NONE && p != Process.NONE) {
       String message = "Process cancelled: " + as.currentProcess + "is still active";
       throw new RuntimeException(message);
@@ -160,8 +159,9 @@ public class AppState {
       default:
         as.isNestedLog = false;
     }
-    System.out.println("Beginning process: " + p);
-    System.out.println(as.isNestedLog);
+    if (p != Process.NONE) {
+      System.out.println("Beginning process: " + p);
+    }
     as.currentProcess = p;
   }
   public static void endCurrentProcess(Process p) {

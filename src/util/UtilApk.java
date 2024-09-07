@@ -10,29 +10,41 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class UtilApk extends Thread {
+public class UtilApk implements Runnable {
   private String returnValue;
   private Process currentProcess;
   static String keyPath;
   static String certPath;
+  public String input;
+  public String output;
+  public Process proc;
+
+  public UtilApk(Process p, String input, String output) {
+    this.proc = p;
+    this.input = input;
+    this.output = output;
+  }
 
   // experimental multithreaded solution
-  public void run(Process p, String input, String output) {
+  @Override
+  public synchronized void run() {
     long id = Thread.currentThread().getId();
     try {
-      currentProcess = p;
+      currentProcess = this.proc;
       // Displaying the thread that is running
       System.out.println(
-        p + ": " + id
+        this.proc + ": " + id
           + " is running");
-      if (p == Process.DECOMPILING) {
+      if (this.proc == Process.DECOMPILING) {
         returnValue = decompileApk(input, output);
       }
-      if (p == Process.RECOMPILING) {
+      if (this.proc == Process.RECOMPILING) {
         returnValue = recompile(input, output);
       }
+      notifyAll();
     }
     catch (Exception e) {
+      e.printStackTrace();
       // Throwing an exception
       System.out.println("Exception is caught");
     }
@@ -45,11 +57,9 @@ public class UtilApk extends Thread {
   }
   public static String decompileApk(String apkPath, String outputPath) {
     try {
-      AppState.setCurrentProcess(Process.DECOMPILING);
       brut.apktool.Main.main(new String[]{"d", "-rf", apkPath, "-o", outputPath});
       byte[] assetsFile = util.Helpers.loadLocalFile(outputPath + "/" + DropmixSharedAssets.assetsRelativePath);
 
-      AppState.endCurrentProcess(Process.DECOMPILING);
       if (assetsFile.length > 100000) {
         AppState.getInstance().setData(assetsFile);
         return outputPath;
@@ -63,9 +73,7 @@ public class UtilApk extends Thread {
   public static String recompile(String inputPath, String outputPath) {
     getKeyAndCert();
     try {
-      AppState.setCurrentProcess(Process.RECOMPILING);
       brut.apktool.Main.main(new String[]{"b", inputPath, "-o", DropmixSharedAssets.unsignedPath});
-      AppState.switchCurrentProcess(Process.RECOMPILING, Process.SIGNING);
       // TODO is this worth splitting into its own function?
       ApkSignerTool.main(new String[]{
         "sign",
@@ -79,7 +87,6 @@ public class UtilApk extends Thread {
         outputPath,
       });
       Files.deleteIfExists(Paths.get(DropmixSharedAssets.unsignedPath));
-      AppState.endCurrentProcess(Process.SIGNING);
       System.out.println("Signed: "+ outputPath);
       return outputPath;
     } catch (BrutException | IOException e) {

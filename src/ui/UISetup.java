@@ -158,15 +158,26 @@ public class UISetup extends JPanel {
           @Override
           public void actionPerformed(ActionEvent ev) {
             System.out.println("Verifying APK: Setting up database...");
-            decompileApk(as.apkFile.getAbsolutePath(), DropmixSharedAssets.decompiledPath);
-            parentFrame.addCardsPanel();
-            parentFrame.addPlaylistsPanel();
-            that.apkVerified = true;
+            AppState.setCurrentProcess(Process.DECOMPILING);
             refresh();
+            SwingWorker sw = new SwingWorker() {
+              @Override
+              protected Object doInBackground() throws Exception {
+                decompileApk(as.apkFile.getAbsolutePath(), DropmixSharedAssets.decompiledPath);
+                AppState.endCurrentProcess(Process.DECOMPILING);
+                parentFrame.addCardsPanel();
+                parentFrame.addPlaylistsPanel();
+                that.apkVerified = true;
+                System.out.println("Swap panel is now ready");
+                refresh();
+                return null;
+              }
+            };
+            sw.execute();
           }
         }
       );
-      decompileBtn.setEnabled(!that.apkVerified);
+      decompileBtn.setEnabled(!that.apkVerified || AppState.getInstance().currentProcess != Process.NONE);
       add(decompileBtn, c);
     }
   }
