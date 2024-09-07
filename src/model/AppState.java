@@ -2,6 +2,7 @@ package model;
 
 import se.vidstige.jadb.JadbDevice;
 import ui.UIMain;
+import util.Helpers;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class AppState {
   public TreeMap<String, String> playlistSwap = new TreeMap<>();
   public JadbDevice adbDevice;
   public DropmixSharedAssets assetsHandler;
+  public DropmixLevel0 level0Handler;
   public LogOptions logState = LogOptions.ERROR;
   public Process currentProcess = Process.NONE;
   public UIMain appFrame; // for forcing refreshes
@@ -31,7 +33,7 @@ public class AppState {
   public static AppState getInstance(boolean isTest) {
     AppState instance = getInstance();
     if (isTest) {
-      instance.setData(instance.loadFile());
+      instance.setData(Helpers.loadFile("sharedassets0.assets.split194"), Helpers.loadFile("level0.split3"));
     }
     return instance;
   }
@@ -40,8 +42,9 @@ public class AppState {
     instance.appFrame = appFrame;
     return instance;
   }
-  public void setData(byte[] fileData) {
-    this.assetsHandler = new DropmixSharedAssets(fileData);
+  public void setData(byte[] sharedAssets, byte[] level0) {
+    this.assetsHandler = new DropmixSharedAssets(sharedAssets);
+    this.level0Handler = new DropmixLevel0(level0);
   }
 
   public DropmixSharedAssetsCard[] getCards() {
@@ -94,20 +97,6 @@ public class AppState {
       }
     });
     return seasons.toArray(new DropmixSharedAssetsPlaylist[0]);
-  }
-  byte[] loadFile() {
-    if (rawData != null) {
-      return rawData;
-    }
-    ClassLoader classLoader = getClass().getClassLoader();
-
-    try {
-      String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
-      rawData = Files.readAllBytes(Paths.get(fileByteArrayPathString));
-      return rawData;
-    } catch (IOException | NullPointerException e) {
-      throw new Error(e);
-    }
   }
   public void removePlaylistSwap(String p1) {
     String p2 = this.playlistSwap.get(p1);
@@ -194,7 +183,7 @@ public class AppState {
     this.appFrame.addPlaceholders();
   }
   // builds a card based swap from the playlist swap; may require more careful refinement as assumptions about order persistence exist
-  public static TreeMap<String, String> getCardSwapFromPlaylist(TreeMap<String, String> plSwap) {
+  public static TreeMap<String, String> getCardSwapFromPlaylist(TreeMap<String, String> plSwap, boolean includeBafflers) {
     for (String key: plSwap.values()) {
       String value = plSwap.get(key);
       String validator = plSwap.get(value);
@@ -225,6 +214,14 @@ public class AppState {
           generatedCardSwap.put(swapPl.cards[i], srcPl.cards[i]);
         } catch (Exception e) {
           continue;
+        }
+      }
+      if (includeBafflers) {
+        String srcBaffler = srcPl.getBaffler();
+        String swapBaffler = swapPl.getBaffler();
+        if (srcBaffler != null && swapBaffler != null) {
+          generatedCardSwap.put(srcBaffler, swapBaffler);
+          generatedCardSwap.put(swapBaffler, srcBaffler);
         }
       }
       alreadySwappedPlaylists.add(playlist);

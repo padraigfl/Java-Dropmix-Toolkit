@@ -3,6 +3,7 @@ package util;
 import brut.common.BrutException;
 import com.android.apksigner.ApkSignerTool;
 import model.AppState;
+import model.DropmixLevel0;
 import model.DropmixSharedAssets;
 import model.Process;
 
@@ -59,9 +60,9 @@ public class UtilApk implements Runnable {
     try {
       brut.apktool.Main.main(new String[]{"d", "-rf", apkPath, "-o", outputPath});
       byte[] assetsFile = util.Helpers.loadLocalFile(outputPath + "/" + DropmixSharedAssets.assetsRelativePath);
-
+      byte[] level0File = util.Helpers.loadLocalFile(outputPath + "/" + DropmixLevel0.relativePath);
       if (assetsFile.length > 100000) {
-        AppState.getInstance().setData(assetsFile);
+        AppState.getInstance().setData(assetsFile, level0File);
         return outputPath;
       }
       throw new RuntimeException("invalid-asset-size: < 100000");

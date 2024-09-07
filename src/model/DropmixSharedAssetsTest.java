@@ -26,21 +26,18 @@ class DropmixSharedAssetsTest {
   @Test
   void applySwap() {
     TreeMap<String, String> swapCards = new TreeMap<>();
-    String[][] cardSwaps = new String[5][2];
-
-    // cardSwaps[0]  = new String[]{ "LIC_0031_Wild", "LIC_0185_Wild" };
-    // cardSwaps[0] = new String[]{ "FX_0044", "LIC_0031_Wild" };
-
-    // two swaps of just season 1, different lengths
-    cardSwaps[0] = new String[]{ "LIC_0058_Wild", "FX_0022" };
-    cardSwaps[1] = new String[]{ "FX_0044", "HMX_0030_Loop" };
-    // season swaps, different lengths
-    // s0 to s1
-    cardSwaps[2] = new String[]{ "LIC_0031_Wild", "FX_0024" };
-//    // s0 to s2
-    cardSwaps[3] = new String[]{ "LIC_0185_Wild", "FX_0057", };
-//    // s1 to s2
-    cardSwaps[4] = new String[]{ "HMX_0001_Loop", "FX_0074_FX" };
+    String[][] cardSwaps = new String[][]{
+            // two swaps of just season 1, different lengths
+            new String[]{ "LIC_0058_Wild", "FX_0022" },
+            new String[]{ "FX_0044", "HMX_0030_Loop" },
+            // season swaps, different lengths
+            // s0 to s1
+            new String[]{ "LIC_0031_Wild", "FX_0024" },
+            //    // s0 to s2
+            new String[]{ "LIC_0185_Wild", "FX_0057", },
+            //    // s1 to s2
+            new String[]{ "HMX_0001_Loop", "FX_0074_FX" },
+    };
 
     for (String[] swap: cardSwaps) {
       if (swap[0] == null) {
@@ -64,7 +61,7 @@ class DropmixSharedAssetsTest {
     for (int i=0; i< names.length; i++) {
       playlists.put(names[i], names[names.length - 1 -i]);
     }
-    TreeMap<String, String> swapCards = AppState.getCardSwapFromPlaylist(playlists);
+    TreeMap<String, String> swapCards = AppState.getCardSwapFromPlaylist(playlists, false);
 
     int oldLength = dropmixSharedAssets.rawData.length;
     byte[] moddedFile = dropmixSharedAssets.applySwap(swapCards);

@@ -134,6 +134,7 @@ public class UIPlaylistsPanel extends JPanel {
         }
       }
     });
+    // box.setEnabled(actions.verifiedModApk == null);
     return box;
   }
 }

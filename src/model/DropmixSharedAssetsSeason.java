@@ -39,14 +39,12 @@ public class DropmixSharedAssetsSeason {
 
   public byte[] backToByteArray(boolean includeEndNewLine) {
     String seasonCSV = DropmixSharedAssetsSeason.csvWriter(toNestedString(), ",", "\"", cards[0].getCardSeason());
-    if (seasonCSV.length() < 2000)
-      System.out.println(seasonCSV);
+
     byte[] seasonByteArray = new byte[rawDb.length];
     // insert DB length
     for (int i = 0; i < 4; i++) {
       seasonByteArray[i] = rawDb[i];
     }
-    System.out.println("size diff: " + rawDb.length + ", " + seasonCSV.length());
     // build out byte array
     for (int i = 0; i < seasonCSV.length(); i++) {
       seasonByteArray[i + 4] = (byte) seasonCSV.charAt(i);
@@ -130,9 +128,6 @@ public class DropmixSharedAssetsSeason {
       int currentColIdx = 0;
       for (String cell: row) {
         boolean hasComma = cell.contains("£") || cell.contains(",");
-        if (cell.contains("ays Ahead")) {
-          System.out.println(cell);
-        }
         String formattedString = cell.replaceAll("£", ",");
         boolean isLikelyString = true;
         try {
@@ -174,7 +169,7 @@ public class DropmixSharedAssetsSeason {
       String chunk = splitText[i];
       sb.append(chunk);
       // need to find instances such as "I Don't Like It, I Love It (ft. Robin Thicke, Verdine White)"
-      Pattern p = Pattern.compile("^\\s.*[a-z]+$");
+      Pattern p = Pattern.compile("^\\s.*[a-z}]+$");
       Matcher m = p.matcher(chunk);
       if (
         (!chunk.isEmpty() && chunk.charAt(0) == '"' && chunk.charAt(chunk.length() -1) != '"')

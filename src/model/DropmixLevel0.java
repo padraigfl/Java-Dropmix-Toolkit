@@ -2,16 +2,20 @@ package model;
 
 import util.Helpers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.TreeMap;
 
 public class DropmixLevel0 {
   public byte[] raw;
   public int startIdx;
-  public static String preData = "\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Ä\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0003\u0000\u0000\u0000\u0002\u0000\u0000\u0000µ\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Á\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Å\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000¹\u0001\u0000\u0000";
+  // public static String preData = "\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Ä\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0003\u0000\u0000\u0000\u0002\u0000\u0000\u0000µ\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Á\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Å\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000¹\u0001\u0000\u0000";
+  public static String preData = "\u0002\u0000\u0000\u0000´\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000¾\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000Â\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000¹\u0001\u0000\u0000";
   //public static byte[] header = {7,73,68,44,65,114,116,105,115,116,44,78,97,109,101,44,65,117,100,105,111,44,73,108,108,117,115,116,114,97,116,111,114,44,73,109,97,103,101,44,84,121,112,101,44,78,117,109,32,66,97,114,115,44,84,101,115,116,32,80,111,119,101,114,44,73,110,115,116,114,117,109,101,110,116,44,73,110,115,116,114,117,109,101,110,116,32,50,44,73,110,115,116,114,117,109,101,110,116,32,51,44,73,110,115,116,114,117,109,101,110,116,32,52,44,71,101,110,114,101,44,89,101,97,114,44,83,111,117,114,99,101,44,65,98,105,108,105,116,121,44,83,99,114,101,101,110,32,84,101,120,116,44,77,117,115,105,99,32,69,102,102,101,99,116,44,84,101,109,112,111,44,75,101,121,44,77,111,100,101,44,84,114,97,110,115,105,116,105,111,110,44,87,105,108,100,32,66,101,97,116,32,72,97,115,32,75,101,121,44,65,114,116,32,67,114,111,112,32,67,101,110,116,101,114,44,67,44,68,98,44,68,44,69,98,44,69,44,70,44,71,98,44,71,44,65,98,44,65,44,66,98,44,66,44,67,114,101,100,105,116,115};
   public DropmixLevel0Card[] cards = new DropmixLevel0Card[440];
   public int dataLength;
   public boolean iOS = false;
+  public static String relativePath = "/assets/bin/Data/level0.split4";
 
   public DropmixLevel0(byte[] raw) {
     byte[] header = new byte[preData.length()];
@@ -49,5 +53,30 @@ public class DropmixLevel0 {
       }
     }
     return rawCopy;
+  }
+  public byte[] applySwap(TreeMap<String, String> cardSwaps) {
+    System.out.printf("Applying swap: %d cards\n", cardSwaps.size());
+    byte[] cloned = this.raw.clone();
+    DropmixLevel0 modifiedLevel0 = new DropmixLevel0(cloned);
+    ArrayList<String> alreadySwapped = new ArrayList<>();
+    cardSwaps.forEach((s1, s2) -> {
+      int idx = 0;
+      for (DropmixLevel0Card c : modifiedLevel0.cards) {
+        if (alreadySwapped.size() == cardSwaps.values().size()) {
+          break;
+        }
+        String cardId = c.card.data.get("CID");
+        if (cardId.equals(s1) && !alreadySwapped.contains(s1)) {
+          c.updateEntry("CID", s2);
+          alreadySwapped.add(s1);
+        }
+        if (cardId.equals(s2) && !alreadySwapped.contains(s2)) {
+          c.updateEntry("CID", s1);
+          alreadySwapped.add(s2);
+        }
+        idx++;
+      }
+    });
+    return modifiedLevel0.backToByteArray();
   }
 }

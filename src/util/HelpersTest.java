@@ -27,31 +27,16 @@ class HelpersTest {
     Assertions.assertEquals(Helpers.rPad("Hello", 10, '!'), "Hello!!!!!");
   }
 
-  byte[] loadFile(String file) {
-    if (assetsFile != null) {
-      return assetsFile;
-    }
-    ClassLoader classLoader = getClass().getClassLoader();
-
-    try {
-      String fileByteArrayPathString = classLoader.getResource(file).getFile();
-      assetsFile = Files.readAllBytes(Paths.get(fileByteArrayPathString));
-      return assetsFile;
-    } catch (IOException | NullPointerException e) {
-      throw new Error(e);
-    }
-  }
-
   @Test
   void getStartIndexTest() {
-    byte[] bytes = loadFile("sharedassets0.assets.split194");
+    byte[] bytes = Helpers.loadFile("sharedassets0.assets.split194");
     int startIdx = AbstractDropmixDataRecord.getStartIndex(bytes, DropmixSharedAssets.s0Header);
     Assertions.assertEquals(startIdx, 808232);
   }
 
   @Test
   void getDBLengthTest() {
-    byte[] bytes = loadFile("sharedassets0.assets.split194");
+    byte[] bytes = Helpers.loadFile("sharedassets0.assets.split194");
     int startIdx = AbstractDropmixDataRecord.getStartIndex(bytes, DropmixSharedAssets.s0Header);
     int crude = Helpers.intFromByteArray(Arrays.copyOfRange(bytes, startIdx, startIdx+4));
     System.out.println();

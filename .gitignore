@@ -2,6 +2,8 @@
 *.apk
 *.idsig
 *.split194
+*.split3
+*.split4
 public
 decompiled
 dataconsult

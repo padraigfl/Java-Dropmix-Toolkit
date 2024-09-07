@@ -16,6 +16,7 @@ public abstract class AbstractDropmixDataRecord {
   byte[] raw;// everything including the 32 bit length specifier and whitespace
   byte[] recordData; //
   boolean iOS;
+  boolean modified;
   public AbstractDropmixDataRecord(byte[] data, int startIdx, boolean iOS) {
     this.startIdx = startIdx;
     this.dataStartIdx = startIdx + 4;
@@ -28,7 +29,7 @@ public abstract class AbstractDropmixDataRecord {
   }
 
   public String toString() {
-    return Helpers.byteArrayToString(Helpers.getNRange(raw, 4, dataLength));
+    return (this.modified ? "[MODIFIED]" : "") + Helpers.byteArrayToString(Helpers.getNRange(raw, 4, dataLength));
   }
 
   public boolean validateUpdatedData(byte[] newData) {

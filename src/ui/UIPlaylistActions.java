@@ -1,6 +1,7 @@
 package ui;
 
 import model.AppState;
+import model.DropmixLevel0;
 import model.DropmixSharedAssets;
 import model.Process;
 import util.UtilAdb;
@@ -20,7 +21,7 @@ import java.util.TreeMap;
 public class UIPlaylistActions extends JPanel {
   public String verifiedModApk;
   public static final String modDir = "dropmix_modded_src";
-
+  public boolean includeBafflers = false;
   public UIPlaylistActions() {
     setLayout(new GridLayout(5, 1));
     try {
@@ -31,25 +32,32 @@ public class UIPlaylistActions extends JPanel {
   public void renderActions() {
     removeAll();
     AppState as = AppState.getInstance();
-
+    UIPlaylistActions that = this;
     JButton resignedApkBtn = SwingFactory.buildButton("Build Re-Signed APK", new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        freshDecompile(false);
+        freshDecompile(false, false);
       }
     });
     resignedApkBtn.setEnabled(verifiedModApk == null && as.currentProcess.equals(Process.NONE) && as.playlistSwap.isEmpty());
     add(resignedApkBtn);
 
-    JButton modApkBtn = SwingFactory.buildButton("Validate Modified APK", new ActionListener() {
+    JButton modApkBtn = SwingFactory.buildButton("Full Swap", new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        freshDecompile(true);
-        System.out.println("Modified dropmix generated");
+        freshDecompile(true, false);
       }
     });
     modApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null && as.currentProcess.equals(Process.NONE));
     add(modApkBtn);
+    JButton safeModApkBtn = SwingFactory.buildButton("Safe Swap", new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        freshDecompile(true, true);
+      }
+    });
+    safeModApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null);
+    add(safeModApkBtn);
 
     JButton installApkBtn = SwingFactory.buildButton("Install APK", new ActionListener() {
       @Override
@@ -67,7 +75,6 @@ public class UIPlaylistActions extends JPanel {
     });
     installApkBtn.setEnabled(this.verifiedModApk != null && as.adbDevice != null);
 
-    UIPlaylistActions that = this;
     JButton saveApk = SwingFactory.buildButton("Save modded APK", new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -89,18 +96,17 @@ public class UIPlaylistActions extends JPanel {
     add(installApkBtn);
     add(saveApk);
   }
-  private void freshDecompile(boolean useMod) {
+  private void freshDecompile(boolean useMod, boolean safeMod) {
     AppState as = AppState.getInstance();
-    Path tempDir = Paths.get(modDir).toAbsolutePath();
     AppState.setCurrentProcess(Process.DECOMPILING);
     SwingWorker decompile = new SwingWorker() {
       @Override
       protected Object doInBackground() throws Exception {
         renderActions();
-        UtilApk.decompileApk(as.apkFile.getAbsolutePath(), tempDir.toString());
+        UtilApk.decompileApk(as.apkFile.getAbsolutePath(), getTempDir().toString());
         if (useMod) {
           AppState.switchCurrentProcess(Process.DECOMPILING, Process.GENERATING_MOD);
-          freshModify();
+          freshModify(safeMod);
         } else {
           AppState.switchCurrentProcess(Process.DECOMPILING, Process.RECOMPILING);
           recompile(useMod);
@@ -111,16 +117,20 @@ public class UIPlaylistActions extends JPanel {
     decompile.execute();
   }
   // apply mod
-  private void freshModify() {
+  private void freshModify(boolean safeMod) {
     AppState as = AppState.getInstance();
+    UIPlaylistActions that = this;
     SwingWorker modify = new SwingWorker() {
       @Override
       protected Object doInBackground() throws Exception {
         renderActions();
-        TreeMap<String, String> swapObj = AppState.getCardSwapFromPlaylist(as.playlistSwap);
-        Path tempDir = Paths.get(modDir).toAbsolutePath();
-        byte[] modBytes = as.assetsHandler.applySwap(swapObj);
-        Path assetsPath = Paths.get(tempDir + DropmixSharedAssets.assetsRelativePath);
+        TreeMap<String, String> swapObj = AppState.getCardSwapFromPlaylist(as.playlistSwap, that.includeBafflers);
+
+        byte[] modBytes = safeMod ? as.level0Handler.applySwap(swapObj) : as.assetsHandler.applySwap(swapObj);
+        Path assetsPath = Paths.get(
+          getTempDir().toString() +
+            ( safeMod ? DropmixLevel0.relativePath : DropmixSharedAssets.assetsRelativePath)
+        );
         try {
           System.out.println("writing to "+ assetsPath.toAbsolutePath().toString());
           Files.deleteIfExists(assetsPath);
@@ -144,8 +154,7 @@ public class UIPlaylistActions extends JPanel {
       @Override
       protected Object doInBackground() throws Exception {
         renderActions();
-        Path tempDir = Paths.get(modDir).toAbsolutePath();
-        String output = UtilApk.recompile(tempDir.toAbsolutePath().toString(), "Dropmix190mod.apk");
+        String output = UtilApk.recompile(getTempDir().toAbsolutePath().toString(), "Dropmix190mod.apk");
         that.verifiedModApk = output;
         that.renderActions();
         AppState.switchCurrentProcess(Process.RECOMPILING, Process.NONE);
@@ -171,27 +180,7 @@ public class UIPlaylistActions extends JPanel {
     this.verifiedModApk = null;
     renderActions();
   }
-//  public String installApk(String moddedApk) {
-//    // get device, validate with data
-//    // modApk()
-//    // install
-//    // return
-//    return "";
-//  }
-//  public String installApk(String moddedApk, boolean transferData) {
-//    // installApk()
-//    // get data path
-//    // transfer data
-//    // get obb path
-//    // transfer data
-//    return "";
-//  }
-//  public boolean setApk(boolean b) {
-//    this.hasModApk = b;
-//    return this.hasModApk;
-//  }
-//  public boolean getApk() {
-//    return this.hasModApk;
-//  }
-
+  public static Path getTempDir() {
+    return Paths.get(modDir).toAbsolutePath();
+  }
 }

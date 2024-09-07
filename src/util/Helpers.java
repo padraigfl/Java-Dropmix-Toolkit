@@ -57,8 +57,8 @@ public class Helpers {
   public static byte[] stringToByte(String row, boolean include13) {
     byte[] output = new byte[row.length() + (include13 ? 1 : 0)];
     int i = 0;
-    for (byte c : row.getBytes()) {
-      output[i++] = c;
+    for (char c : row.toCharArray()) {
+      output[i++] = (byte) c;
     }
     if (include13) {
       output[output.length - 1] = 13;
@@ -74,8 +74,8 @@ public class Helpers {
     }
   }
 
-  public byte[] loadFile(String file) {
-    ClassLoader classLoader = getClass().getClassLoader();
+  public static byte[] loadFile(String file) {
+    ClassLoader classLoader = Helpers.class.getClassLoader();
 
     try {
       String fileByteArrayPathString = classLoader.getResource(file).getFile();
