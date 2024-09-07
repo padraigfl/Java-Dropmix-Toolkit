@@ -1,7 +1,5 @@
 package model;
 
-import util.Helpers;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -26,7 +24,7 @@ public class DropmixLevel0 {
     }
     this.startIdx = AbstractDropmixDataRecord.getStartIndex(raw, header);
     this.raw = raw;
-    DropmixLevel0Card headingRow = new DropmixLevel0Card(raw, this.startIdx, new HashSet<String>(), this.iOS);
+    DropmixLevel0Card headingRow = new DropmixLevel0Card(raw, this.startIdx, new HashSet<>(), this.iOS);
     for (String h: DropmixLevel0Card.headings) {
       if (!h.equals(headingRow.card.data.get(h))) {
         throw new RuntimeException("db-corrupt:bad-heading:"+ h);
@@ -36,7 +34,7 @@ public class DropmixLevel0 {
     int currentStart = headingRow.startIdx + headingRow.raw.length;
     int counter = 0;
     while (counter < 440) {
-      DropmixLevel0Card newCard = new DropmixLevel0Card(raw, currentStart, new HashSet<String>(), this.iOS);
+      DropmixLevel0Card newCard = new DropmixLevel0Card(raw, currentStart, new HashSet<>(), this.iOS);
       currentStart = newCard.startIdx + newCard.raw.length;
       cards[counter] = newCard;
       counter++;
@@ -60,7 +58,6 @@ public class DropmixLevel0 {
     DropmixLevel0 modifiedLevel0 = new DropmixLevel0(cloned);
     ArrayList<String> alreadySwapped = new ArrayList<>();
     cardSwaps.forEach((s1, s2) -> {
-      int idx = 0;
       for (DropmixLevel0Card c : modifiedLevel0.cards) {
         if (alreadySwapped.size() == cardSwaps.values().size()) {
           break;
@@ -74,7 +71,6 @@ public class DropmixLevel0 {
           c.updateEntry("CID", s1);
           alreadySwapped.add(s2);
         }
-        idx++;
       }
     });
     return modifiedLevel0.backToByteArray();

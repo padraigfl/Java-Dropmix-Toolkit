@@ -48,7 +48,7 @@ public class UIPlaylistActions extends JPanel {
         freshDecompile(true, false);
       }
     });
-    modApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null && as.currentProcess.equals(Process.NONE));
+    modApkBtn.setEnabled(!as.playlistSwap.isEmpty() && verifiedModApk == null && as.currentProcess.equals(Process.NONE));
     add(modApkBtn);
     JButton safeModApkBtn = SwingFactory.buildButton("Safe Swap", new ActionListener() {
       @Override
@@ -56,7 +56,7 @@ public class UIPlaylistActions extends JPanel {
         freshDecompile(true, true);
       }
     });
-    safeModApkBtn.setEnabled(as.playlistSwap.size() > 0 && verifiedModApk == null);
+    safeModApkBtn.setEnabled(!as.playlistSwap.isEmpty() && verifiedModApk == null);
     add(safeModApkBtn);
 
     JButton installApkBtn = SwingFactory.buildButton("Install APK", new ActionListener() {
@@ -85,7 +85,7 @@ public class UIPlaylistActions extends JPanel {
           System.out.println(verifiedModApk.getBytes().length + " "  + saved.toPath());
           Path savePath = saved.toPath();
           if (!savePath.toString().endsWith(".apk")) {
-            savePath = Paths.get(savePath.toString() + ".apk");
+            savePath = Paths.get(savePath + ".apk");
           }
           Files.write(savePath, Files.readAllBytes(Paths.get(verifiedModApk)));
         } catch (IOException ex) {}
@@ -174,9 +174,7 @@ public class UIPlaylistActions extends JPanel {
       if (this.verifiedModApk != null) {
         Files.deleteIfExists(Paths.get(this.verifiedModApk));
       }
-    } catch (IOException e) {
-
-    }
+    } catch (IOException e) { }
     this.verifiedModApk = null;
     renderActions();
   }

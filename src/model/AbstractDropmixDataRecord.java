@@ -32,20 +32,10 @@ public abstract class AbstractDropmixDataRecord {
     return (this.modified ? "[MODIFIED]" : "") + Helpers.byteArrayToString(Helpers.getNRange(raw, 4, dataLength));
   }
 
-  public boolean validateUpdatedData(byte[] newData) {
-    if (
-      newData.length != dataLength
-    ) {
-      return false;
-    }
-    return true;
-  }
-
   public static int getStartIndex(byte[] rawData, byte[] startSequence) {
     outer:
     for (int i = 0; i < rawData.length; i++) {
       if (rawData[i] == startSequence[0]) {
-        inner:
         for (int j = 1; j < startSequence.length &&  (j+i) < rawData.length; j++ ) {
           if (rawData[i + j] != startSequence[j]) {
             continue outer;
@@ -56,6 +46,4 @@ public abstract class AbstractDropmixDataRecord {
     }
     return -1;
   }
-
-  public abstract String[] getHeadings();
 }

@@ -21,8 +21,8 @@ public class Helpers {
   public static int intFromByteArray(byte[] bytes) {
     double counter = 0;
     double multiplier = 1;
-    for (int i = 0; i < bytes.length; i++) {
-      int byteConverted = bytes[i] & 0xff;
+    for (byte aByte : bytes) {
+      int byteConverted = aByte & 0xff;
       counter += (byteConverted * multiplier);
       multiplier = multiplier * Math.pow(2, 8);
     }
@@ -30,9 +30,6 @@ public class Helpers {
   }
   public static String rPad(String str, int length, char car) {
     return (str + String.format("%" + length + "s", "").replace(" ", String.valueOf(car))).substring(0, length);
-  }
-  public static byte[] get4Range(byte[] field, int idx) {
-    return Arrays.copyOfRange(field, idx, idx + 4);
   }
   public static byte[] getNRange(byte[] field, int idx, int len) {
     return Arrays.copyOfRange(field, idx, idx + len);
@@ -162,11 +159,5 @@ public class Helpers {
       sb.append((char) b);
     }
     return sb.toString();
-  }
-  public static String byteArrayToString(byte[] bytes, int startIdx) {
-    return byteArrayToString(bytes, startIdx, bytes.length);
-  }
-  public static String byteArrayToString(byte[] bytes, int startIdx, int length) {
-    return Helpers.byteArrayToString(Helpers.getNRange(bytes, startIdx, length));
   }
 }

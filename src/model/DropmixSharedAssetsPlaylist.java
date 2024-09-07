@@ -2,12 +2,9 @@ package model;
 
 import util.Helpers;
 
-import java.util.TreeMap;
-
 public class DropmixSharedAssetsPlaylist {
   public String[] cards;
   public int playlistCount;
-  public String baffler;
   public String playlistType;
   public String season;
   public String name;
@@ -86,9 +83,5 @@ public class DropmixSharedAssetsPlaylist {
         }
       }
     }
-  }
-  public String getBaffler(String iconName) {
-    baffler = "";
-    return baffler;
   }
 }

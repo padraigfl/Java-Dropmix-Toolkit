@@ -14,7 +14,7 @@ public class AppStateTest {
     plSwap.put("highness", "sweets");
     plSwap.put("sweets", "highness");
 
-    TreeMap<String, String> cardSwap = AppState.getCardSwapFromPlaylist(plSwap);
+    TreeMap<String, String> cardSwap = AppState.getCardSwapFromPlaylist(plSwap, false);
     Assertions.assertEquals(cardSwap.size(), 30);
     Assertions.assertTrue(cardSwap.containsKey("LIC_0058_Wild"));
     Assertions.assertTrue(cardSwap.containsValue("LIC_0058_Wild"));
@@ -25,7 +25,7 @@ public class AppStateTest {
       plSwap.clear();
       plSwap.put("baffler", "promo");
       plSwap.put("promo", "baffler");
-      cardSwap = AppState.getCardSwapFromPlaylist(plSwap);
+      AppState.getCardSwapFromPlaylist(plSwap, false);
     } catch (RuntimeException e) {
       errorMessage = e.getMessage();
     }
@@ -37,7 +37,7 @@ public class AppStateTest {
       plSwap.put("instinct", "bomb");
       plSwap.put("chiller", "instinct");
       plSwap.put("bomb", "chiller");
-      cardSwap = AppState.getCardSwapFromPlaylist(plSwap);
+      AppState.getCardSwapFromPlaylist(plSwap, false);
     } catch (RuntimeException e) {
       errorMessage = e.getMessage();
     }

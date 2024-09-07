@@ -113,12 +113,12 @@ public static final String[] headings = new String[]{
     boolean firstEmptyInstancePassed = false;
     for (String quoteChunk: quotesHandled) {
       // skip first empty value
-      if (quoteChunk.equals("") && builder.size() == 0) {
+      if (quoteChunk.isEmpty() && builder.isEmpty()) {
         continue;
       }
-      if (!firstEmptyInstancePassed && quoteChunk.length() == 0) {
+      if (!firstEmptyInstancePassed && quoteChunk.isEmpty()) {
         firstEmptyInstancePassed = true;
-      } else if (quoteChunk.length() > 0 && quoteChunk.charAt(0) == ',') {
+      } else if (!quoteChunk.isEmpty() && quoteChunk.charAt(0) == ',') {
         // if comma between quoted fields, skip
         if (quoteChunk.length() == 1) {
           continue;
@@ -178,7 +178,7 @@ public static final String[] headings = new String[]{
             field = Helpers.addQuotes(field);
           }
         } catch (Exception e) {
-          if (field.length() > 0) {
+          if (!field.isEmpty()) {
             field = Helpers.addQuotes(field);
           }
         }
@@ -200,10 +200,7 @@ public static final String[] headings = new String[]{
     }
     return newRaw;
   }
-  @Override
-  public String[] getHeadings() {
-    return DropmixLevel0Card.headings;
-  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (String h: headings) {
@@ -220,7 +217,7 @@ public static final String[] headings = new String[]{
           data = Helpers.addQuotes(data);
         }
       } catch (Exception e) {
-        if (data.length() > 0) {
+        if (!data.isEmpty()) {
           data = Helpers.addQuotes(data);
         }
       }

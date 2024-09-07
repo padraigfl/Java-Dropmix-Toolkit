@@ -50,9 +50,7 @@ public class UtilApk implements Runnable {
       System.out.println("Exception is caught");
     }
   }
-  public String getReturnValue() {
-    return this.returnValue;
-  }
+
   public Process getProcess() {
     return this.currentProcess;
   }

@@ -7,8 +7,7 @@ import util.Helpers;
 import java.util.TreeMap;
 
 class DropmixSharedAssetsTest {
-  Helpers helper = new Helpers();
-  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(helper.loadFile("sharedassets0.assets.split194"));
+  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(Helpers.loadFile("sharedassets0.assets.split194"));
 
 //  @Test
 //  void validateConstructor() {
@@ -82,7 +81,6 @@ class DropmixSharedAssetsTest {
       int lastIdx = 0;
       for (int k = 0; k < original.length; k++) {
         if (original[k] != modified[k] && (k - lastIdx) > range) {
-          lastIdx = k;
           byte[] r1 = Helpers.getNRange(original, k - range, range * 2);
           byte[] r2 = Helpers.getNRange(modified, k - range, range * 2);
           StringBuilder a1 = new StringBuilder();

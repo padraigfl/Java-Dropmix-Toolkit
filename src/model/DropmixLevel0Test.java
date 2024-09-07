@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import util.Helpers;
 
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class DropmixLevel0Test {
@@ -19,9 +18,8 @@ public class DropmixLevel0Test {
   }
 
   // verifies changing fields doesn't result in the database becoming corrupted
-  // @Test
+  @Test
   public void testDatabaseConsistency() {
-    TreeMap<String, String> swapCards = new TreeMap<>();
     String[][] cardSwaps = new String[][]{
       // two swaps of just season 1, different lengths
       new String[]{ "LIC_0058_Wild", "FX_0022" },
@@ -36,13 +34,6 @@ public class DropmixLevel0Test {
     };
     String CID = "CID";
 
-    for (String[] swap: cardSwaps) {
-      if (swap[0] == null) {
-        continue;
-      }
-      swapCards.put(swap[0], swap[1]);
-      swapCards.put(swap[1], swap[0]);
-    }
     int i = 0;
     for (DropmixLevel0Card c: dropmixLevel0.cards) {
       String cardId = c.card.data.get(CID);

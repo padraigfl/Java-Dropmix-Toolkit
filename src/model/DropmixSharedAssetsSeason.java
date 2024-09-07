@@ -33,7 +33,7 @@ public class DropmixSharedAssetsSeason {
     this.cards = new DropmixSharedAssetsCard[this.rows.length - 1];
     for (int i = 0; i < this.cards.length; i++) {
       this.cards[i] = new DropmixSharedAssetsCard(this.rows[i+1]);
-      cardIndexRef.put(this.cards[i].data.get(DropmixSharedAssetsCard.SourceCID), Integer.valueOf(i));
+      cardIndexRef.put(this.cards[i].data.get(DropmixSharedAssetsCard.SourceCID), i);
     }
   }
 
@@ -54,13 +54,7 @@ public class DropmixSharedAssetsSeason {
     }
     return seasonByteArray;
   }
-  static String getDb(byte[] b) {
-    StringBuilder sb = new StringBuilder();
-    for (byte a: b) {
-      sb.append((char) a);
-    }
-    return sb.toString();
-  }
+
   /**/
   public String[][] toNestedString() {
     String[][] nestedData = new String[this.cards.length + 1][this.columns.length];

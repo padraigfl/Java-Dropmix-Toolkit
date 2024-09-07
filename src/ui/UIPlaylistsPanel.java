@@ -119,7 +119,6 @@ public class UIPlaylistsPanel extends JPanel {
             that.actions.clearState();
           } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.toString());
             box.setSelectedIndex(0);
           }
 //          if (!"Okay".equalsIgnoreCase(jTextField.getText())) {

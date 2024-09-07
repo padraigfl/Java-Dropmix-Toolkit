@@ -5,16 +5,9 @@ import model.DropmixSharedAssets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 class HelpersTest {
-  static byte[] header = { 67,73,68,44,83,111,117,114,99,101,32,67,73,68,44,67,84,73,44,73,116,101,109,32,73,68,44,73,116,101,109,32,84,121,112,101,44,80,111,119,101,114,44,68,101,99,107,32,73,68,44,83,101,114,105,101,115,32,73,99,111,110,44,83,101,114,105,101,115,32,73,110,100,101,120,44,83,101,114,105,101,115,32,67,111,117,110,116,44,83,101,97,115,111,110,44,65,114,116,105,115,116,82,101,102,44,83,111,110,103,82,101,102,44,84,121,112,101,82,101,102,44,71,101,110,114,101,82,101,102,44,80,114,105,110,116,32,73,68 };
-  static byte[] assetsFile;
-
   @Test
   void fromByteArrayTest() {
     byte[] barray = { 0x01, 0x01, 0x0000, 0x0000 };
