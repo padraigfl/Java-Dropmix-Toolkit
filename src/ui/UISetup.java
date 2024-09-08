@@ -159,7 +159,6 @@ public class UISetup extends JPanel {
           public void actionPerformed(ActionEvent ev) {
             System.out.println("Verifying APK: Setting up database...");
             AppState.setCurrentProcess(Process.DECOMPILING);
-            refresh();
             SwingWorker sw = new SwingWorker() {
               @Override
               protected Object doInBackground() throws Exception {
@@ -173,6 +172,7 @@ public class UISetup extends JPanel {
                 return null;
               }
             };
+            refresh();
             sw.execute();
           }
         }

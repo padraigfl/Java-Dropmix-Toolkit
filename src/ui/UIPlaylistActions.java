@@ -33,14 +33,17 @@ public class UIPlaylistActions extends JPanel {
     removeAll();
     AppState as = AppState.getInstance();
     UIPlaylistActions that = this;
+    boolean recompileButtonsActive = verifiedModApk == null && as.currentProcess.equals(Process.NONE);
     JButton resignedApkBtn = SwingFactory.buildButton("Build Re-Signed APK", new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         freshDecompile(false, false);
       }
     });
-    resignedApkBtn.setEnabled(verifiedModApk == null && as.currentProcess.equals(Process.NONE) && as.playlistSwap.isEmpty());
+    resignedApkBtn.setEnabled(recompileButtonsActive && as.playlistSwap.isEmpty());
     add(resignedApkBtn);
+
+    boolean swapButtonsActive = !as.playlistSwap.isEmpty() && recompileButtonsActive;
 
     JCheckBox cb = new JCheckBox("swap bafflers if possible");
     cb.addActionListener(new ActionListener() {
@@ -58,7 +61,7 @@ public class UIPlaylistActions extends JPanel {
         freshDecompile(true, false);
       }
     });
-    modApkBtn.setEnabled(!as.playlistSwap.isEmpty() && verifiedModApk == null && as.currentProcess.equals(Process.NONE));
+    modApkBtn.setEnabled(swapButtonsActive);
     add(modApkBtn);
     JButton safeModApkBtn = SwingFactory.buildButton("Safe Swap", new ActionListener() {
       @Override
@@ -66,7 +69,7 @@ public class UIPlaylistActions extends JPanel {
         freshDecompile(true, true);
       }
     });
-    safeModApkBtn.setEnabled(!as.playlistSwap.isEmpty() && verifiedModApk == null);
+    safeModApkBtn.setEnabled(swapButtonsActive);
     add(safeModApkBtn);
 
     JButton installApkBtn = SwingFactory.buildButton("Install APK", new ActionListener() {

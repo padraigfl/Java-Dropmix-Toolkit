@@ -68,12 +68,13 @@ public class UtilAdb {
       } else if (os.contains("win")) {
         System.out.println("Assuming Windows device, using adb.exe");
         adbLocation = "adb.exe";
+        // Windows requires these library files in the same directory
         Helpers.saveTempFile("/AdbWinApi.dll", "AdbWinApi", ".DLL");
         Helpers.saveTempFile("/AdbWinUsbApi.dll", "AdbWinUsbApi", ".DLL");
       } else {
         System.out.println(os + " issue; assuming linux");
       }
-      return Helpers.saveTempFile("/" + adbLocation, adbLocation, ".EXE");
+      return Helpers.saveTempFile("/" + adbLocation, adbLocation, adbLocation.contains(".exe") ? ".EXE" : null);
   }
   public static boolean installApk(JadbDevice device, String apkPath) {
     startServer();

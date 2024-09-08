@@ -54,12 +54,11 @@ I need to know the version of Java you're using and the output of the log panel 
 
 ### Known Issues:
 
-1. Full card swap process triggers redownload of all card assets
-1. I raced through this so the UI is janky as hell. I expect frequent restarts. Some of it looks pretty bad with the Java 1.8 compilation settings but it'll do
-1. UI in general has weird lags tbh; it may need a rethink in general
+1. Full Swap process triggers re-download of all card assets
+1. I raced through this so the UI is janky as hell. I expect frequent restarts. Some of it looks pretty bad with the Java 1.8 compilation settings but it'll do. Would greatly appreciate from a more experienced Java developer here.
 1. Need to figure out the licensing stuff fully. My understanding is that all the libraries I depend on here use Apache 2.0 so I will use that too
 1. The included keys for signing the APK currently have had less than zero thought put into them. This is a rough and insecure project. If you want to improve anything around the security of this project I'd love the help!
-1. No data is saved between instances of the program so you need to readd the apk each time
+1. No data is saved between instances of the program so you need to re-add the apk each time
 1. The app does a terrible job cleaning up after itself, the directory you run the app from will likely have some junk folders in it, they'll overwrite each time you run the app and it's safe to delete them
 
 ## Current functionality:
@@ -72,13 +71,13 @@ I need to know the version of Java you're using and the output of the log panel 
 
 #### Full swap
 
-This simply swaps the card IDs on the top level data tables (found in sharedassets), meaning a card will behave exactly like its swapped counterpart.
+This simply swaps the card IDs on the top level data tables (found in sharedassets), meaning a card should behave exactly like its swapped counterpart.
 
-Unfortunately this means the card's have data which does not match the app data and a fresh download of assets will be triggered before the game can be played; meaning limited long term value
+Unfortunately this means the cards have data which does not match the app data and a fresh download of assets will be triggered before the game can be played; meaning limited long term value
 
 #### Safe Swap
 
-This swaps the IDs in the game level data (found in level0), mostly behaving exactly the same however "Power" appears to come from the top level database.
+This swaps the IDs in the game level data (found in level0), mostly behaving exactly the same however "Power" appears to come from the top level database and I may be missing other areas where issues exist
 
 #### Future Options
 
@@ -88,7 +87,7 @@ As I've had to update the game level data for the safe swap, I've largely implem
 
 This is the work I intend to do rather than stretch goals and bolder things
 
-1. Output APK alongside CSV file outlining changes from the main one
+1. Output APK alongside CSV file outlining changes from the main one (with same name, possibly?)
 1. Verify working on Windows (partially checked, ADB not)
-1. Tools for straightforward installing of APK without mods (i.e. install APK to device, copy data files over)
+1. Tools for straightforward installing of APK and data without mods (i.e. install APK to device, copy data files over)
 1. Mod iOS app on M1 devices 

@@ -220,6 +220,7 @@ public class AppState {
         String srcBaffler = srcPl.getBaffler();
         String swapBaffler = swapPl.getBaffler();
         if (srcBaffler != null && swapBaffler != null) {
+          System.out.printf("Swapping bafflers for %s (%s) and %s (%s)\n", srcPl.name, srcBaffler, swapPl.name, swapBaffler);
           generatedCardSwap.put(srcBaffler, swapBaffler);
           generatedCardSwap.put(swapBaffler, srcBaffler);
         }
