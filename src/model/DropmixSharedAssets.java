@@ -20,9 +20,9 @@ public class DropmixSharedAssets {
   // raw assets file data, should not modify directly on swaps
   final byte[] rawData;
   // season data pulled directly from tables
-  public TreeMap<Integer, SeasonTable> seasons;
+  public TreeMap<Integer, DropmixSharedAssetsSeason> seasons;
   // card data for quicker reference; needs to be the same references as in seasons
-  public TreeMap<String, CardDetail> cards;
+  public TreeMap<String, DropmixSharedAssetsCard> cards;
 
   public DropmixSharedAssets(byte[] rawData) {
     this.rawData = rawData;
@@ -31,10 +31,10 @@ public class DropmixSharedAssets {
     int seasonIdx = 0;
     int cardCounter = 0;
     for (byte[] header: headers) {
-      int startIdx = getStartIndex(this.rawData, header);
-      SeasonTable season = new SeasonTable(this.rawData, header, startIdx, seasonIdx);
+      int startIdx = AbstractDropmixDataRecord.getStartIndex(this.rawData, header);
+      DropmixSharedAssetsSeason season = new DropmixSharedAssetsSeason(this.rawData, header, startIdx, seasonIdx);
       seasons.put(seasonIdx, season);
-      for (CardDetail c: season.cards) {
+      for (DropmixSharedAssetsCard c: season.cards) {
         cards.put(c.getCardId(), c);
       }
       cardCounter += season.cards.length;
@@ -46,7 +46,7 @@ public class DropmixSharedAssets {
   }
 
   // validates the data matches with the raw data that will be modified
-  public boolean csvMatchesByteArray(String csv, SeasonTable season, byte[] newData) {
+  public boolean csvMatchesByteArray(String csv, DropmixSharedAssetsSeason season, byte[] newData) {
     int arrLength = Helpers.intFromByteArray((Arrays.copyOfRange(this.rawData, season.startIdx, season.startIdx)));
     return csv.length() == (arrLength - 4);
   }
@@ -59,8 +59,8 @@ public class DropmixSharedAssets {
 
     Set<String> changedSeasons = new HashSet<>();
     cardSwaps.forEach((s1, s2) -> {
-      CardDetail c1 = modifiedAssets.cards.get(s1);
-      CardDetail c2 = modifiedAssets.cards.get(s2);
+      DropmixSharedAssetsCard c1 = modifiedAssets.cards.get(s1);
+      DropmixSharedAssetsCard c2 = modifiedAssets.cards.get(s2);
       String c1CardId = c1.getCardId();
       String c2CardId = c2.getCardId();
 
@@ -78,9 +78,9 @@ public class DropmixSharedAssets {
     });
     Counter databaseModified = new Counter(0);
     Counter databaseSize = new Counter(0);
-    modifiedAssets.seasons.forEach(new BiConsumer<Integer, SeasonTable>() {
+    modifiedAssets.seasons.forEach(new BiConsumer<Integer, DropmixSharedAssetsSeason>() {
       @Override
-      public void accept(Integer seasonIdx, SeasonTable seasonTable) {
+      public void accept(Integer seasonIdx, DropmixSharedAssetsSeason seasonTable) {
         byte[] seasonByteArray = seasonTable.backToByteArray(false);
 
         databaseSize.iterate(seasonTable.length);
@@ -95,7 +95,7 @@ public class DropmixSharedAssets {
     });
     System.out.printf("Updated %d Seasons; %d of %d (%.2f) bytes", changedSeasons.size(), databaseModified.getCounter(), databaseSize.getCounter(), ((double) databaseModified.getCounter() / (double) databaseSize.getCounter()));
     int sCount = 0;
-    for (SeasonTable s: modifiedAssets.seasons.values()) {
+    for (DropmixSharedAssetsSeason s: modifiedAssets.seasons.values()) {
       int size = s.length;
       StringBuilder start = new StringBuilder();
       StringBuilder end = new StringBuilder();
@@ -108,7 +108,7 @@ public class DropmixSharedAssets {
       for (int i = 0; i < printRange; i++) {
         all.append((char) s.rawDb[i]);
       }
-      SeasonTable oldS= seasons.get(sCount);
+      DropmixSharedAssetsSeason oldS= seasons.get(sCount);
       for (int i = 0; i < size; i++) {
         try {
           all.append((char) s.rawDb[i]);
@@ -118,25 +118,10 @@ public class DropmixSharedAssets {
     }
     DropmixSharedAssets ds = new DropmixSharedAssets(clonedAssetsFile);
     for (int i = 0; i < 3; i++) {
-      SeasonTable s1 = modifiedAssets.seasons.get(i);
-      SeasonTable s2 = ds.seasons.get(i);
+      DropmixSharedAssetsSeason s1 = modifiedAssets.seasons.get(i);
+      DropmixSharedAssetsSeason s2 = ds.seasons.get(i);
       System.out.printf("\nSize: %d %d; db len: %d %d", s1.length, s2.length, s1.rawDb.length, s2.rawDb.length);
     }
     return clonedAssetsFile;
-  }
-  public static int getStartIndex(byte[] rawData, byte[] startSequence) {
-    outer:
-    for (int i = 0; i < rawData.length; i++) {
-      if (rawData[i] == startSequence[0]) {
-        inner:
-        for (int j = 1; j < startSequence.length &&  (j+i) < rawData.length; j++ ) {
-          if (rawData[i + j] != startSequence[j]) {
-            continue outer;
-          }
-        }
-        return i + startSequence.length;
-      }
-    }
-    return -1;
   }
 }

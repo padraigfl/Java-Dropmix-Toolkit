@@ -21,8 +21,8 @@ public class Helpers {
   public static int intFromByteArray(byte[] bytes) {
     double counter = 0;
     double multiplier = 1;
-    for (int i = 0; i < bytes.length; i++) {
-      int byteConverted = bytes[i] & 0xff;
+    for (byte aByte : bytes) {
+      int byteConverted = aByte & 0xff;
       counter += (byteConverted * multiplier);
       multiplier = multiplier * Math.pow(2, 8);
     }
@@ -30,9 +30,6 @@ public class Helpers {
   }
   public static String rPad(String str, int length, char car) {
     return (str + String.format("%" + length + "s", "").replace(" ", String.valueOf(car))).substring(0, length);
-  }
-  public static byte[] get4Range(byte[] field, int idx) {
-    return Arrays.copyOfRange(field, idx, idx + 4);
   }
   public static byte[] getNRange(byte[] field, int idx, int len) {
     return Arrays.copyOfRange(field, idx, idx + len);
@@ -48,9 +45,22 @@ public class Helpers {
   public static String bytetoString(byte[] field) {
     StringBuilder sb = new StringBuilder();
     for (byte b: field) {
-      sb.append((char) b);
+      if (b != 13) {// end of entry character in level0
+        sb.append((char) b);
+      }
     }
     return sb.toString();
+  }
+  public static byte[] stringToByte(String row, boolean include13) {
+    byte[] output = new byte[row.length() + (include13 ? 1 : 0)];
+    int i = 0;
+    for (char c : row.toCharArray()) {
+      output[i++] = (byte) c;
+    }
+    if (include13) {
+      output[output.length - 1] = 13;
+    }
+    return output;
   }
 
   public static byte[] loadLocalFile(String strPath) {
@@ -61,75 +71,16 @@ public class Helpers {
     }
   }
 
-  public byte[] loadFile() {
-    ClassLoader classLoader = getClass().getClassLoader();
+  public static byte[] loadFile(String file) {
+    ClassLoader classLoader = Helpers.class.getClassLoader();
 
     try {
-      String fileByteArrayPathString = classLoader.getResource("sharedassets0.assets.split194").getFile();
+      String fileByteArrayPathString = classLoader.getResource(file).getFile();
       assetsFile = Files.readAllBytes(Paths.get(fileByteArrayPathString));
       return assetsFile;
     } catch (IOException | NullPointerException e) {
       throw new Error(e);
     }
-  }
-
-  public static TreeMap<String, String> getSampleTreeMap() {
-    TreeMap<String, String> test = new TreeMap<>();
-    test.put("p01_c001_i01_maintitlesong_wild", "p01_c002_i01_flutterfly_wild");
-    test.put("p01_c002_i01_flutterfly_wild", "p01_c001_i01_maintitlesong_wild");
-    return test;
-  }
-
-  // Each seasons data table has some quirks which need to be handled here
-  // TODO document quirks
-  public static String[][] getByteRowSplit(byte[] bytes, int dataStartIdx, int arrayLength, boolean isSeason2) {
-    // dataStartIdx should correspond to the first piece of valid text
-    ArrayList<String[]> data = new ArrayList<String[]>();
-    StringBuilder rawString = new StringBuilder();
-    for (int i = 0; i < arrayLength; i++) {
-      char byteCastChar = (char)(char) bytes[dataStartIdx + i];
-      rawString.append(byteCastChar);
-    }
-    String commaRegEx = "(\"[A-Za-z\\s]+\\s),";
-    String fillInString = ";";
-    String[] rawStringSplit = rawString.toString().split("\n");
-    for (int i = 0; i < rawStringSplit.length; i++) {
-      String s = rawStringSplit[i];
-      String rawRow = s;
-      if (isSeason2 && s.contains("\"")) {
-        rawRow = rawRow.replaceAll(commaRegEx, "$1"+fillInString+" ");
-      } else if (i > 0) { // Robin Thicke has a comma in the title, heading follows different format
-        rawRow = rawRow.replaceAll(commaRegEx, "$1"+fillInString+ " ");
-      }
-      String[] dataRow = rawRow.split(",");
-      for (int j = 0; j < dataRow.length; j++) {
-        if (dataRow[j].contains(fillInString)) {
-          dataRow[j] = dataRow[j].replaceAll(fillInString, ";");
-        }
-      }
-      data.add(dataRow);
-    }
-    return data.toArray(new String[data.size()][data.get(0).length]);
-  }
-
-  static byte[] stringToByteArray(String str) {
-    byte[] byteArray = new byte[str.length()];
-    for (int i = 0; i < str.length(); i++) {
-      byteArray[i] = (byte) str.charAt(i);
-    }
-    return byteArray;
-  }
-  public static byte[] getNewBytesetFromData(String[][] data, int season, int arrayLength) {
-    byte[] byteData = new byte[arrayLength];
-    int indexCounter = 0;
-    for (int i = 0; i < data.length; i++) {
-      String combined = String.join(",", data[i]);
-      for (int j = 0; j < data[i].length; j++) {
-        byteData[indexCounter] = (byte) combined.charAt(j);
-        indexCounter++;
-      }
-    }
-    return byteData;
   }
 
   public static String addQuotes(String str) {
@@ -162,9 +113,6 @@ public class Helpers {
   public static void logAction(String text) {
     System.out.println("ACTION: "+text);
   }
-  public static void logError(String text) {
-    System.out.println("ERROR: " + text);
-  }
 
   public static <T> T[] getArrayFromList(List<T> thing) {
     return (T[]) thing.toArray(new Object[0]);
@@ -173,14 +121,15 @@ public class Helpers {
     return Arrays.stream(arr).collect(Collectors.toList());
   }
 
-  public static String saveTempFile(String resourcePath, String tempFileName) {
+  public static String saveTempFile(String resourcePath, String tempFileName, String extension) {
     try {
       String srcFileName = UtilAdb.class.getResource(resourcePath).getFile();
       System.out.println(srcFileName);
       byte[] adbBytes = IOUtils.toByteArray(UtilAdb.class.getResourceAsStream(resourcePath));
 
-      Path tempFilePath = Files.createTempFile(tempFileName, null);
+      Path tempFilePath = Files.createTempFile(tempFileName, extension);
       Files.write(tempFilePath, adbBytes);
+
       if (System.getProperty("os.name").toLowerCase().contains("mac")) {
         Files.setPosixFilePermissions(tempFilePath,
           EnumSet.of(
@@ -202,5 +151,13 @@ public class Helpers {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static String byteArrayToString(byte[] bytes) {
+    StringBuilder sb = new StringBuilder();
+    for (byte b:bytes) {
+      sb.append((char) b);
+    }
+    return sb.toString();
   }
 }

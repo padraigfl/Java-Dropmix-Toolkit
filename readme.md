@@ -29,13 +29,18 @@ adb is also baked in to simplify the process of connecting to an Android device;
 
 ## Setup:
 
-1. Add a key and certificate to the same directory as you run the jar from for signing the new APK (I may include a dummy one to remove this step)
 1. Run `java -jar [app path]/DropmixModdingTool.jar` (depending on your device you may only need to click on the icon in your Finder/Explorer)
 1. Add a valid Dropmix APK file (must be v1.9.0) and verify it
 1. (if desired) connect Android device (will fail if more than one available)
 1. Go to playlists tab and select the playlists you wish to swap
-1. Build the modded version of the APK
+1. Build the modded version of the APK (Safe Swap recommended; see Swap info below)
 1. Either install it directly to you ADB connected device or save it to your hard drive
+1. Once you have all card data downloaded, you should only run the app with wifi and data disabled to prevent constant server data refreshes
+
+### Recommendations:
+
+- As modifying the apk requires the app to be be signed with a new security key, there will be issues with any data you already have. With this in mind it's recommended to use the "Build Re-Signed APK" function to have a straight copy of the app unmodified but with the same signature as other mods
+- The Safe Swap modification process isn't perfect but as it doesn't break the data integrity within the app (requiring all card data to be redownloaded), it's a better long term option
 
 ## Troubleshooting
 
@@ -45,13 +50,13 @@ I need to know the version of Java you're using and the output of the log panel 
 - what version of java is it?
 - do you have multiple adb devices conneccted to your computer?
 - is the Dropmix APK file definitely 1.9.0
+- download all card data via the app and proceed to never use the app while connected to the internet again
 
 ### Known Issues:
 
-1. A fresh install of all card data is required after each install currently [I'm guessing this is some kind of auto refresh function baked into the app]
+1. Full card swap process triggers redownload of all card assets
 1. I raced through this so the UI is janky as hell. I expect frequent restarts. Some of it looks pretty bad with the Java 1.8 compilation settings but it'll do
-1. Logs aren't updating correctly; I think I need to add some multithreading functionality
-1. UI in general has weird lags tbh
+1. UI in general has weird lags tbh; it may need a rethink in general
 1. Need to figure out the licensing stuff fully. My understanding is that all the libraries I depend on here use Apache 2.0 so I will use that too
 1. The included keys for signing the APK currently have had less than zero thought put into them. This is a rough and insecure project. If you want to improve anything around the security of this project I'd love the help!
 1. No data is saved between instances of the program so you need to readd the apk each time
@@ -60,14 +65,30 @@ I need to know the version of Java you're using and the output of the log panel 
 ## Current functionality:
 
 1. Parse app's key card database
-1. Generates a modified version of the application with playlists swapped
+1. Generates a modified version of the application with playlists swapped (two processes available)
 1. Directly installs modified APK onto connected android device (requires ADB server instance)
+
+### Modification Options
+
+#### Full swap
+
+This simply swaps the card IDs on the top level data tables (found in sharedassets), meaning a card will behave exactly like its swapped counterpart.
+
+Unfortunately this means the card's have data which does not match the app data and a fresh download of assets will be triggered before the game can be played; meaning limited long term value
+
+#### Safe Swap
+
+This swaps the IDs in the game level data (found in level0), mostly behaving exactly the same however "Power" appears to come from the top level database.
+
+#### Future Options
+
+As I've had to update the game level data for the safe swap, I've largely implemented the parsing and writing of the database which would allow custom cards along with more extensive game modifications (e.g. FX cards rules appear to be set here too)
 
 ## Future work:
 
-1. Alternative swap process using `level0` data (will not require fresh data downloads so future-proof but won't have 100% accurate card behaviour)
-1. Include associated baffler cards in playlist swaps
-1. Mod iOS app on M1 devices
-1. Verify working on Windows
-1. Tools for straightforward installing of APK without mods
-1. Mayyyyybe custom cards? This involves modifying the level0 assets file instead and injecting custom data files post-install so it's not so easy
+This is the work I intend to do rather than stretch goals and bolder things
+
+1. Output APK alongside CSV file outlining changes from the main one
+1. Verify working on Windows (partially checked, ADB not)
+1. Tools for straightforward installing of APK without mods (i.e. install APK to device, copy data files over)
+1. Mod iOS app on M1 devices 

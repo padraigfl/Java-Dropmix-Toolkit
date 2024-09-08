@@ -7,8 +7,7 @@ import util.Helpers;
 import java.util.TreeMap;
 
 class DropmixSharedAssetsTest {
-  Helpers helper = new Helpers();
-  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(helper.loadFile());
+  DropmixSharedAssets dropmixSharedAssets = new DropmixSharedAssets(Helpers.loadFile("sharedassets0.assets.split194"));
 
 //  @Test
 //  void validateConstructor() {
@@ -26,21 +25,18 @@ class DropmixSharedAssetsTest {
   @Test
   void applySwap() {
     TreeMap<String, String> swapCards = new TreeMap<>();
-    String[][] cardSwaps = new String[5][2];
-
-    // cardSwaps[0]  = new String[]{ "LIC_0031_Wild", "LIC_0185_Wild" };
-    // cardSwaps[0] = new String[]{ "FX_0044", "LIC_0031_Wild" };
-
-    // two swaps of just season 1, different lengths
-    cardSwaps[0] = new String[]{ "LIC_0058_Wild", "FX_0022" };
-    cardSwaps[1] = new String[]{ "FX_0044", "HMX_0030_Loop" };
-    // season swaps, different lengths
-    // s0 to s1
-    cardSwaps[2] = new String[]{ "LIC_0031_Wild", "FX_0024" };
-//    // s0 to s2
-    cardSwaps[3] = new String[]{ "LIC_0185_Wild", "FX_0057", };
-//    // s1 to s2
-    cardSwaps[4] = new String[]{ "HMX_0001_Loop", "FX_0074_FX" };
+    String[][] cardSwaps = new String[][]{
+            // two swaps of just season 1, different lengths
+            new String[]{ "LIC_0058_Wild", "FX_0022" },
+            new String[]{ "FX_0044", "HMX_0030_Loop" },
+            // season swaps, different lengths
+            // s0 to s1
+            new String[]{ "LIC_0031_Wild", "FX_0024" },
+            //    // s0 to s2
+            new String[]{ "LIC_0185_Wild", "FX_0057", },
+            //    // s1 to s2
+            new String[]{ "HMX_0001_Loop", "FX_0074_FX" },
+    };
 
     for (String[] swap: cardSwaps) {
       if (swap[0] == null) {
@@ -64,7 +60,7 @@ class DropmixSharedAssetsTest {
     for (int i=0; i< names.length; i++) {
       playlists.put(names[i], names[names.length - 1 -i]);
     }
-    TreeMap<String, String> swapCards = AppState.getCardSwapFromPlaylist(playlists);
+    TreeMap<String, String> swapCards = AppState.getCardSwapFromPlaylist(playlists, false);
 
     int oldLength = dropmixSharedAssets.rawData.length;
     byte[] moddedFile = dropmixSharedAssets.applySwap(swapCards);
@@ -72,8 +68,8 @@ class DropmixSharedAssetsTest {
     Assertions.assertEquals(moddedFile.length, oldLength);
     Assertions.assertNotEquals(moddedFile, dropmixSharedAssets.rawData);
     for (int i = 0; i < 3; i++) {
-      SeasonTable s1 = dropmixSharedAssets.seasons.get(i);
-      SeasonTable s2 = newVersion.seasons.get(i);
+      DropmixSharedAssetsSeason s1 = dropmixSharedAssets.seasons.get(i);
+      DropmixSharedAssetsSeason s2 = newVersion.seasons.get(i);
       byte[] original = Helpers.getNRange(s1.rawDb, 4, s1.rawDb.length - 4);
       byte[] modified = s2.backToByteArray(i == 2);
       Assertions.assertEquals(s1.length, s2.length);
@@ -85,7 +81,6 @@ class DropmixSharedAssetsTest {
       int lastIdx = 0;
       for (int k = 0; k < original.length; k++) {
         if (original[k] != modified[k] && (k - lastIdx) > range) {
-          lastIdx = k;
           byte[] r1 = Helpers.getNRange(original, k - range, range * 2);
           byte[] r2 = Helpers.getNRange(modified, k - range, range * 2);
           StringBuilder a1 = new StringBuilder();
@@ -108,7 +103,7 @@ class DropmixSharedAssetsTest {
   void replaceRogueCommas() {
     String rt = "\"Flo Rida\",\"I Don't Like It, I Love It (ft. Robin Thicke, Verdine White)\",\"Loop\"";
     String expect =  "\"Flo Rida\",\"I Don't Like It£ I Love It (ft. Robin Thicke£ Verdine White)\",\"Loop\"";
-    String formatted = SeasonTable.replaceRogueCommas(rt, ",");
+    String formatted = DropmixSharedAssetsSeason.replaceRogueCommas(rt, ",");
     Assertions.assertEquals(expect, formatted);
   }
 }

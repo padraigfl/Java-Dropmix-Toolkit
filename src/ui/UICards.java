@@ -1,7 +1,7 @@
 package ui;
 
 import model.AppState;
-import model.CardDetail;
+import model.DropmixSharedAssetsCard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,12 +26,12 @@ public class UICards extends JPanel {
 
   public JTable getTable() {
     JTable jt = new JTable();
-    CardDetail[] cardDetails = AppState.getInstance().getCards();
-    String[] headings = new String[]{ CardDetail.SourceCID, CardDetail.Power, CardDetail.ArtistRef, CardDetail.SongRef };
+    DropmixSharedAssetsCard[] cardDetails = AppState.getInstance().getCards();
+    String[] headings = new String[]{ DropmixSharedAssetsCard.SourceCID, DropmixSharedAssetsCard.Power, DropmixSharedAssetsCard.ArtistRef, DropmixSharedAssetsCard.SongRef };
     String[][] tableData = new String[cardDetails.length][headings.length];
     for (int i = 0; i < cardDetails.length; i++) {
       for (int j = 0; j < headings.length; j++) {
-        tableData[i][j] = cardDetails[i].cardData.get(headings[j]);
+        tableData[i][j] = cardDetails[i].data.get(headings[j]);
       }
     }
 //    TableModel dataModel = new AbstractTableModel() {
