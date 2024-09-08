@@ -214,6 +214,8 @@ public class AppState {
           e.printStackTrace();
         }
       }
+
+      // if both playlists have an associated baffler, they can be swapped as well
       if (includeBafflers) {
         String srcBaffler = srcPl.getBaffler();
         String swapBaffler = swapPl.getBaffler();

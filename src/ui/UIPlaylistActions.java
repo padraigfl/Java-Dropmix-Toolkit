@@ -23,7 +23,7 @@ public class UIPlaylistActions extends JPanel {
   public static final String modDir = "dropmix_modded_src";
   public boolean includeBafflers = false;
   public UIPlaylistActions() {
-    setLayout(new GridLayout(5, 1));
+    setLayout(new GridLayout(7, 1));
     try {
       Files.deleteIfExists(Paths.get(modDir));
     } catch (IOException e) { }
@@ -41,6 +41,16 @@ public class UIPlaylistActions extends JPanel {
     });
     resignedApkBtn.setEnabled(verifiedModApk == null && as.currentProcess.equals(Process.NONE) && as.playlistSwap.isEmpty());
     add(resignedApkBtn);
+
+    JCheckBox cb = new JCheckBox("swap bafflers if possible");
+    cb.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        that.includeBafflers = !that.includeBafflers;
+      }
+    });
+    cb.setEnabled(as.currentProcess.equals(Process.NONE));
+    add(cb);
 
     JButton modApkBtn = SwingFactory.buildButton("Full Swap", new ActionListener() {
       @Override
