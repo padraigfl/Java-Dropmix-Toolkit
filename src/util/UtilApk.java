@@ -97,10 +97,10 @@ public class UtilApk implements Runnable {
   }
   public static void getKeyAndCert() {
     if (UtilApk.keyPath == null) {
-      UtilApk.keyPath = Helpers.saveTempFile("/key.pk8", "key.pk8");
+      UtilApk.keyPath = Helpers.saveTempFile("/key.pk8", "key.pk8", null);
     }
     if (UtilApk.certPath == null) {
-      UtilApk.certPath = Helpers.saveTempFile("/certificate.pem", "cert.pem");
+      UtilApk.certPath = Helpers.saveTempFile("/certificate.pem", "cert.pem", null);
     }
   }
 }

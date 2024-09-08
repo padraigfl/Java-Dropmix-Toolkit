@@ -121,13 +121,13 @@ public class Helpers {
     return Arrays.stream(arr).collect(Collectors.toList());
   }
 
-  public static String saveTempFile(String resourcePath, String tempFileName) {
+  public static String saveTempFile(String resourcePath, String tempFileName, String extension) {
     try {
       String srcFileName = UtilAdb.class.getResource(resourcePath).getFile();
       System.out.println(srcFileName);
       byte[] adbBytes = IOUtils.toByteArray(UtilAdb.class.getResourceAsStream(resourcePath));
 
-      Path tempFilePath = Files.createTempFile(tempFileName, null);
+      Path tempFilePath = Files.createTempFile(tempFileName, extension);
       Files.write(tempFilePath, adbBytes);
 
       if (System.getProperty("os.name").toLowerCase().contains("mac")) {

@@ -60,22 +60,20 @@ public class UtilAdb {
     }
   }
   private static String getAdbPath() {
-    try {
       String adbLocation = "adb-linux";
       String os = System.getProperty("os.name").toLowerCase();
       if (os.contains("mac")) {
+        System.out.println("Assuming Windows device, adb");
         adbLocation = "adb";
       } else if (os.contains("win")) {
+        System.out.println("Assuming Windows device, using adb.exe");
         adbLocation = "adb.exe";
+        Helpers.saveTempFile("/AdbWinApi.dll", "AdbWinApi", ".DLL");
+        Helpers.saveTempFile("/AdbWinUsbApi.dll", "AdbWinUsbApi", ".DLL");
       } else {
         System.out.println(os + " issue; assuming linux");
       }
-      String jarParent = new File(UtilAdb.class.getProtectionDomain().getCodeSource().getLocation()
-        .toURI()).getParent();
-      return Helpers.saveTempFile("/" + adbLocation, adbLocation);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
+      return Helpers.saveTempFile("/" + adbLocation, adbLocation, ".EXE");
   }
   public static boolean installApk(JadbDevice device, String apkPath) {
     startServer();
