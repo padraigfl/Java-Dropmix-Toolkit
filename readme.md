@@ -37,6 +37,8 @@ adb is also baked in to simplify the process of connecting to an Android device;
 1. Either install it directly to you ADB connected device or save it to your hard drive
 1. Once you have all card data downloaded, you should only run the app with wifi and data disabled to prevent constant server data refreshes
 
+See /docs/setup.md for a visual run through on running this software.
+
 ### Recommendations:
 
 - As modifying the apk requires the app to be be signed with a new security key, there will be issues with any data you already have. With this in mind it's recommended to use the "Build Re-Signed APK" function to have a straight copy of the app unmodified but with the same signature as other mods
