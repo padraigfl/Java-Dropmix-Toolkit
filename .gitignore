@@ -6,6 +6,7 @@
 *.split4
 public
 decompiled
+decompiled-debug
 dataconsult
 out
 *.pem

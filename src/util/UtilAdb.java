@@ -63,7 +63,7 @@ public class UtilAdb {
       String adbLocation = "adb-linux";
       String os = System.getProperty("os.name").toLowerCase();
       if (os.contains("mac")) {
-        System.out.println("Assuming Windows device, adb");
+        System.out.println("Assuming Mac device, adb");
         adbLocation = "adb";
       } else if (os.contains("win")) {
         System.out.println("Assuming Windows device, using adb.exe");

@@ -48,8 +48,11 @@ public class DropmixSharedAssetsCard extends DataRow {
   public String getCardId() {
     return this.data.get(DropmixSharedAssetsCard.SourceCID);
   }
-  private void setCardId(String newId) {
-    this.data.put(DropmixSharedAssetsCard.SourceCID, newId);
+  public String getCardCTI() {
+    return this.data.get(DropmixSharedAssetsCard.CTI);
+  }
+  private void setCardCTI(String newId) {
+    this.data.put(DropmixSharedAssetsCard.CTI, newId);
   }
   public int getCardSeason() {
     try {
@@ -79,13 +82,13 @@ public class DropmixSharedAssetsCard extends DataRow {
     }
     this.data.put(fieldToChange, songTitle);
   }
-  public void setSourceCID(String newCardId, boolean preserveLength) {
-    String currentId = getCardId();
-    int songTitleLengthChangeRequired = currentId.length() - newCardId.length();
+  public void setCTI(String newCardCTI, boolean preserveLength) {
+    String currentId = getCardCTI();
+    int songTitleLengthChangeRequired = currentId.length() - newCardCTI.length();
     if (!preserveLength && songTitleLengthChangeRequired != 0) {
       shortedDBRowForModification(songTitleLengthChangeRequired);
     }
-    this.setCardId(newCardId);
+    this.setCardCTI(newCardCTI);
   }
 
   public String toString() {

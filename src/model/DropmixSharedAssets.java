@@ -61,19 +61,19 @@ public class DropmixSharedAssets {
     cardSwaps.forEach((s1, s2) -> {
       DropmixSharedAssetsCard c1 = modifiedAssets.cards.get(s1);
       DropmixSharedAssetsCard c2 = modifiedAssets.cards.get(s2);
-      String c1CardId = c1.getCardId();
-      String c2CardId = c2.getCardId();
+      String c1CardCTI = c1.getCardCTI();
+      String c2CardCTI = c2.getCardCTI();
 
-      if (!alreadySwapped.contains(c1CardId) && !alreadySwapped.contains(c2CardId)) {
+      if (!alreadySwapped.contains(c1CardCTI) && !alreadySwapped.contains(c2CardCTI)) {
 
         changedSeasons.add("" + c1.getCardSeason());
         changedSeasons.add("" + c2.getCardSeason());
         // if both are from the same season there's no need to worry about the output table length
         boolean isSameSeason = c1.getCardSeason() == (c2.getCardSeason());
-        c1.setSourceCID(c2CardId, isSameSeason);
-        c2.setSourceCID(c1CardId, isSameSeason);
-        alreadySwapped.add(c1CardId);
-        alreadySwapped.add(c2CardId);
+        c1.setCTI(c2CardCTI, isSameSeason);
+        c2.setCTI(c1CardCTI, isSameSeason);
+        alreadySwapped.add(c1CardCTI);
+        alreadySwapped.add(c2CardCTI);
       }
     });
     Counter databaseModified = new Counter(0);
